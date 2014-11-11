@@ -33,7 +33,7 @@ April 2013
 import numpy, pylab, random, sys
 #import NeuroTools.signals as nt
 
-import pacman103.front.pynn as sim
+import pyNN.spiNNaker as sim
 
 # SpiNNaker setup
 sim.setup(timestep=1.0,min_delay=1.0,max_delay=10.0)
@@ -191,11 +191,11 @@ def plot_spikes(spikes, title):
   if spikes != None:
       pylab.figure()
       pylab.xlim((0, simtime))
-      pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".") 
+      pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".")
       pylab.xlabel('Time/ms')
       pylab.ylabel('spikes')
       pylab.title(title)
-     
+
   else:
       print "No spikes received"
 

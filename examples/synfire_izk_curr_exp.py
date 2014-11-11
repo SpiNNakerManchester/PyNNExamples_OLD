@@ -2,7 +2,7 @@
 Synfirechain-like example
 """
 #!/usr/bin/python
-import pacman103.front.pynn as p
+import pyNN.spiNNaker as p
 import pylab
 
 p.setup(timestep=1.0, min_delay = 1.0, max_delay = 32.0)
@@ -55,7 +55,7 @@ spikes = populations[0].getSpikes(compatible_output=True)
 
 if spikes != None:
     pylab.figure()
-    pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".") 
+    pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".")
     pylab.xlabel('Time/ms')
     pylab.ylabel('spikes')
     pylab.title('spikes')
@@ -76,7 +76,7 @@ if v != None:
     #for pos in range(0, nNeurons):
         v_for_neuron = v[pos * ticks : (pos + 1) * ticks]
         print v_for_neuron
-        pylab.plot([i[1] for i in v_for_neuron], 
+        pylab.plot([i[1] for i in v_for_neuron],
                 [i[2] for i in v_for_neuron])
     pylab.show()
 

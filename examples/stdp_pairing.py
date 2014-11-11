@@ -1,7 +1,7 @@
 import numpy, pylab, random, sys
 #import NeuroTools.signals as nt
 
-import pacman103.front.pynn as sim
+import pyNN.spiNNaker as sim
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
@@ -67,7 +67,7 @@ stdp_model = sim.STDPMechanism(
   weight_dependence = sim.AdditiveWeightDependence(w_min = 0, w_max = 1, A_plus=0.02, A_minus = 0.02)
 )
 
-sim.Projection(pre_pop, post_pop, sim.OneToOneConnector(), 
+sim.Projection(pre_pop, post_pop, sim.OneToOneConnector(),
   synapse_dynamics = sim.SynapseDynamics(slow= stdp_model)
 )
 
@@ -88,11 +88,11 @@ def plot_spikes(spikes, title):
   if spikes != None:
       pylab.figure()
       pylab.xlim((0, sim_time))
-      pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".") 
+      pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".")
       pylab.xlabel('Time/ms')
       pylab.ylabel('spikes')
       pylab.title(title)
-     
+
   else:
       print "No spikes received"
 

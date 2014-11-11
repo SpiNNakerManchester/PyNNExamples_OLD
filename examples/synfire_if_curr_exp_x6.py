@@ -2,7 +2,7 @@
 Synfirechain-like example with 6 chains
 """
 #!/usr/bin/python
-import pacman103.front.pynn as p
+import pyNN.spiNNaker as p
 
 p.setup(timestep=1.0, min_delay = 1.0, max_delay = 32.0)
 p.set_number_of_neurons_per_core("IF_curr_exp", 100)
