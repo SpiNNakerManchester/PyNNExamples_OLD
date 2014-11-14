@@ -3,7 +3,6 @@ Synfirechain-like example
 """
 #!/usr/bin/python
 import pyNN.spiNNaker as p
-import visualiser.visualiser_modes as modes
 import pylab
 
 p.setup(timestep=1.0, min_delay = 1.0, max_delay = 144.0)

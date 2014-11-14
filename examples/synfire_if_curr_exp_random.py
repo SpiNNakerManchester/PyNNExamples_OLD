@@ -3,7 +3,6 @@ Synfirechain-like example
 """
 #!/usr/bin/python
 import pyNN.spiNNaker as p
-import visualiser.visualiser_modes as modes
 import numpy, pylab
 
 p.setup(timestep=1.0, min_delay = 1.0, max_delay = 144.0)
@@ -48,7 +47,7 @@ projections.append(p.Projection(populations[1], populations[0], p.FromListConnec
 
 populations[0].record_v()
 populations[0].record_gsyn()
-populations[0].record(visualiser_mode=modes.RASTER)
+populations[0].record()
 
 run_time = (max_delay * nNeurons)
 print "Running for {} ms".format(run_time)
