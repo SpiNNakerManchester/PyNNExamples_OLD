@@ -251,4 +251,4 @@ if v_esp is not None:
                 [i[2] for i in v_for_neuron])
 
 plt.show()
-
+pynn.end()
