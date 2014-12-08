@@ -4,28 +4,30 @@
 import numpy
 import pylab
 
-def _histogram(a, bins=10, range=None, normed=False):
+
+def _histogram(a, bins=10, plot_range=None, normed=False):
 
     from numpy import asarray, iterable, linspace, sort, concatenate
 
     a = asarray(a).ravel()
 
-    if range is not None:
-        mn, mx = range
+    if plot_range is not None:
+        mn, mx = plot_range
         if mn > mx:
-            raise AttributeError, "max must be larger than min in range parameter."
+            raise AttributeError(
+                "max must be larger than min in range parameter.")
 
     if not iterable(bins):
-        if range is None:
-            range = (a.min(), a.max())
-        mn, mx = [mi + 0.0 for mi in range]
+        if plot_range is None:
+            plot_range = (a.min(), a.max())
+        mn, mx = [mi + 0.0 for mi in plot_range]
         if mn == mx:
             mn -= 0.5
             mx += 0.5
         bins = linspace(mn, mx, bins, endpoint=False)
     else:
         if(bins[1:] - bins[:-1] < 0).any():
-            raise AttributeError, "bins must increase monotonically."
+            raise AttributeError("bins must increase monotonically.")
 
     # best block size probably depends on processor cache size
     block = 65536
@@ -37,12 +39,13 @@ def _histogram(a, bins=10, range=None, normed=False):
 
     if normed:
         db = bins[1] - bins[0]
-        return 1.0 / (a.size * db) * n, bins
+        return 1.0 / (a.size * db) * n
     else:
-        return n, bins
+        return n
 
 
-def _make_plot(ts, ts1, gids, neurons, hist, hist_binwidth, grayscale, title, xlabel=None, total_time=None, n_neurons=None):
+def _make_plot(ts, ts1, gids, neurons, hist, hist_binwidth, grayscale, title,
+               xlabel=None, total_time=None, n_neurons=None):
     """
     Generic plotting routine that constructs a raster plot along with
     an optional histogram (common part in all routines above)
@@ -72,17 +75,20 @@ def _make_plot(ts, ts1, gids, neurons, hist, hist_binwidth, grayscale, title, xl
         if total_time is not None:
             pylab.xlim(0, total_time)
         if n_neurons is not None:
-            pylab.ylim(0, n_neurons)    
-        
+            pylab.ylim(0, n_neurons)
+
         xlim = pylab.xlim()
 
         pylab.axes([0.1, 0.1, 0.85, 0.17])
-        t_bins = numpy.arange(numpy.amin(ts), numpy.amax(ts), float(hist_binwidth))
-        n, bins = _histogram(ts, bins=t_bins)
+        t_bins = numpy.arange(numpy.amin(ts), numpy.amax(ts),
+                              float(hist_binwidth))
+        n = _histogram(ts, bins=t_bins)
         num_neurons = len(numpy.unique(neurons))
         heights = 1000 * n / (hist_binwidth * num_neurons)
-        pylab.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
-        pylab.yticks(map(lambda x: int(x), numpy.linspace(0.0, int(max(heights) * 1.1) + 5, 4)))
+        pylab.bar(t_bins, heights, width=hist_binwidth, color=color_bar,
+                  edgecolor=color_edge)
+        pylab.yticks(map(lambda x: int(x),
+                         numpy.linspace(0.0, int(max(heights) * 1.1) + 5, 4)))
         pylab.ylabel("Rate (Hz)")
         pylab.xlabel(xlabel)
         pylab.xlim(xlim)
@@ -107,9 +113,9 @@ def _make_plot(ts, ts1, gids, neurons, hist, hist_binwidth, grayscale, title, xl
 
 
 def sortByID(spinnakerMembrane):
-    '''                                                                                                                                  
+    '''
     '''
     memArray = (spinnakerMembrane)
-    memIndex = numpy.lexsort((memArray[:,0],memArray[:,1]))
+    memIndex = numpy.lexsort((memArray[:, 0], memArray[:, 1]))
     memArraySorted = memArray[memIndex]
     return memArraySorted
