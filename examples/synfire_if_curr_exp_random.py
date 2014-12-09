@@ -84,8 +84,7 @@ if v is not None:
     pylab.title('v')
     for pos in range(0, nNeurons, 20):
         v_for_neuron = v[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[1] for i in v_for_neuron],
-                   [i[2] for i in v_for_neuron])
+        pylab.plot([i[2] for i in v_for_neuron])
     pylab.show()
 
 if gsyn is not None:
@@ -95,8 +94,7 @@ if gsyn is not None:
     pylab.title('gsyn')
     for pos in range(0, nNeurons, 20):
         gsyn_for_neuron = gsyn[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[1] for i in gsyn_for_neuron],
-                   [i[2] for i in gsyn_for_neuron])
+        pylab.plot([i[2] for i in gsyn_for_neuron])
     pylab.show()
 
 p.end()

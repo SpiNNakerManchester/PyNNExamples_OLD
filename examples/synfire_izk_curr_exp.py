@@ -77,8 +77,7 @@ if v is not None:
     for pos in range(0, nNeurons, 20):
         v_for_neuron = v[pos * ticks: (pos + 1) * ticks]
         print v_for_neuron
-        pylab.plot([i[1] for i in v_for_neuron],
-                   [i[2] for i in v_for_neuron])
+        pylab.plot([i[2] for i in v_for_neuron])
     pylab.show()
 
 p.end()

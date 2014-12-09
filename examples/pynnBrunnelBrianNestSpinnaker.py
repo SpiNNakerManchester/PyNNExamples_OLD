@@ -159,9 +159,6 @@ Poiss_ext_E = pynn.Population(N_E, pynn.SpikeSourcePoisson, {'rate': 10.0},
 Poiss_ext_I = pynn.Population(N_I, pynn.SpikeSourcePoisson, {'rate': 10.0},
                               label="Poisson_pop_I")
 
-Poiss_ext_E.record()
-Poiss_ext_I.record()
-
 # Connectors
 E_conn = pynn.FixedProbabilityConnector(epsilon, weights=J_E, delays=delay)
 I_conn = pynn.FixedProbabilityConnector(epsilon, weights=J_I, delays=delay)
