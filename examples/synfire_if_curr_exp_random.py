@@ -4,6 +4,7 @@ Synfirechain-like example
 import pyNN.spiNNaker as p
 import numpy
 import pylab
+from pyNN.random import RandomDistribution
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 nNeurons = 200  # number of neurons in each population
@@ -25,14 +26,11 @@ populations = list()
 projections = list()
 
 weight_to_spike = 2.0
-delay = numpy.random.RandomState()
-delays = list()
+delay = RandomDistribution("uniform", parameters=[1, max_delay])
 
 loopConnections = list()
 for i in range(0, nNeurons):
-    d_value = int(delay.uniform(low=1, high=max_delay))
-    delays.append(float(d_value))
-    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, d_value)
+    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, delay)
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0, weight_to_spike, 1)]
