@@ -43,27 +43,27 @@ model = sim.IF_curr_exp
 
 cell_params = {'cm': 0.25,
                'i_offset': 0.0,
-               'tau_m': 10.0,
+               'tau_m': 20.0,
                'tau_refrac': 2.0,
-               'tau_syn_E': 2.5,
-               'tau_syn_I': 2.5,
+               'tau_syn_E': 5.0,
+               'tau_syn_I': 5.0,
                'v_reset': -70.0,
                'v_rest': -65.0,
-               'v_thresh': -55.4
+               'v_thresh': -50.0
                }
 
 
 # Other simulation parameters
-e_rate = 200
-in_rate = 350
+e_rate = 80
+in_rate = 300
 
 n_stim_test = 5
-n_stim_pairing = 10
+n_stim_pairing = 20
 dur_stim = 20
 
 pop_size = 40
 
-ISI = 150.
+ISI = 90.
 start_test_pre_pairing = 200.
 start_pairing = 1500.
 start_test_post_pairing = 700.
@@ -154,7 +154,7 @@ for i in range(len(IAddPost)):
 
 # Plastic Connections between pre_pop and post_pop
 stdp_model = sim.STDPMechanism(
-    timing_dependence=sim.SpikePairRule(tau_plus=20., tau_minus=50.0,
+    timing_dependence=sim.SpikePairRule(tau_plus=20., tau_minus=20.0,
                                         nearest=True),
     weight_dependence=sim.AdditiveWeightDependence(w_min=0, w_max=0.9,
                                                    A_plus=0.02, A_minus=0.02)
