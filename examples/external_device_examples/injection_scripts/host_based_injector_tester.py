@@ -5,8 +5,11 @@ from spinnman.messages.eieio.eieio_prefix_type import EIEIOPrefixType
 from spinnman.connections.udp_packet_connections.reverse_iptag_connection\
     import ReverseIPTagConnection
 
-udp_connection = ReverseIPTagConnection(remote_host="spinn-1.cs.man.ac.uk",
-                                        remote_port=12345)
+from spynnaker.pyNN.utilities.conf import config
+
+udp_connection = \
+    ReverseIPTagConnection(remote_host=config.get("Machine", "machineName"),
+                           remote_port=12345)
 
 key = 0x70800
 #key = 0x800
