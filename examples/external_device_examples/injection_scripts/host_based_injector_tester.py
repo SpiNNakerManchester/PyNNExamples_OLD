@@ -25,7 +25,7 @@ key += 1
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -33,7 +33,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_16_BIT, prefix_param=0xfff0,
                      prefix_type=EIEIOPrefixType.UPPER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
@@ -41,7 +41,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
                      prefix_type=EIEIOPrefixType.UPPER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -50,7 +50,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_16_BIT,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
@@ -58,7 +58,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -67,7 +67,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_16_BIT, prefix_param=0xfff0,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
@@ -75,20 +75,20 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_16_BIT,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -96,7 +96,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT, prefix_param=0xfff0,
                      prefix_type=EIEIOPrefixType.UPPER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
@@ -104,7 +104,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
                      prefix_type=EIEIOPrefixType.UPPER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -112,7 +112,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT, prefix_param=0xfff0,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
@@ -120,7 +120,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 payload += 1
 
@@ -129,7 +129,7 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT, prefix_param=0xfff0,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 
 header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
@@ -137,6 +137,6 @@ header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_PAYLOAD_32_BIT,
                      prefix_type=EIEIOPrefixType.LOWER_HALF_WORD)
 message = EIEIOMessage(eieio_header=header, data=bytearray())
 message.write_data(key, payload)
-udp_connection.send_eieio_message(message)
+injection_connection.send_eieio_message(message)
 key += 1
 '''
