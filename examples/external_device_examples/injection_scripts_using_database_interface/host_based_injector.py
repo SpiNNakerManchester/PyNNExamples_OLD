@@ -43,11 +43,6 @@ class HostBasedInjector(object):
             self._database_path += str(unichr(reader.read_byte()))
 
         self._recieved_hand_shake = True
-        #send handshake
-        hand_shake_response = EIEIOCommandMessage(EIEIOCommandHeader(
-            constants.EIEIO_COMMAND_IDS.DATABASE_CONFIRMATION.value))
-        self._database_connection.\
-            send_eieio_command_message(hand_shake_response)
 
         #notify myself so that i can read database and inject spikes
         self._recieved_hand_shake_condition.notify()
@@ -69,6 +64,7 @@ class HostBasedInjector(object):
         self._pop_id = pop_id
         self._key_to_neuron_id_mapping = None
         self._max_neurons = None
+        self._run()
 
     @property
     def key_to_neuron_id_mapping(self):
@@ -78,7 +74,7 @@ class HostBasedInjector(object):
     def max_neurons(self):
         return self._max_neurons
 
-    def run(self):
+    def _run(self):
         print "started \n"
         #wait till ready to read database
         self._recieved_hand_shake_condition.acquire()
@@ -97,7 +93,14 @@ class HostBasedInjector(object):
         connection.close()
         self._recieved_hand_shake_condition.release()
 
-    def inject_spike(self, routing_key):
+        #send handshake
+        hand_shake_response = EIEIOCommandMessage(EIEIOCommandHeader(
+            constants.EIEIO_COMMAND_IDS.DATABASE_CONFIRMATION.value))
+        self._database_connection.\
+            send_eieio_command_message(hand_shake_response)
+
+    def inject_spike(self, neuron_id):
+        routing_key = injector.key_to_neuron_id_mapping[neuron_id]
         header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT)
         message = EIEIOMessage(eieio_header=header)
         message.write_data(routing_key)
@@ -121,13 +124,11 @@ class HostBasedInjector(object):
 
 if __name__ == "__main__":
     injector = HostBasedInjector("spike_injector_1")
-    injector.run()
     max_spikes = 5
 
     print "injecting spikes \n"
     for spike in range(0, max_spikes):
         spike_id = spike * math.floor((injector.max_neurons / max_spikes))
-        key = injector.key_to_neuron_id_mapping[spike_id]
-        injector.inject_spike(key)
+        injector.inject_spike(spike_id)
         sleep(1)
     print "finished injecting spikes \n"

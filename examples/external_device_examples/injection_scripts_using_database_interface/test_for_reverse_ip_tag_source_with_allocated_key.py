@@ -1,6 +1,5 @@
 import spynnaker.pyNN as frontend
 import spynnaker_external_devices_plugin.pyNN as externaldevices
-from spinnman.messages.eieio.eieio_prefix_type import EIEIOPrefixType
 import pylab
 
 frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
@@ -30,8 +29,7 @@ populations.append(frontend.Population(nNeurons, frontend.IF_curr_exp,
                                        cell_params_lif, label='pop_1'))
 populations.append(
     frontend.Population(nNeurons, externaldevices.ReverseIpTagMultiCastSource,
-                        cell_params_spike_injector,
-                        label='spike_injector_1'))
+                        cell_params_spike_injector, label='spike_injector_1'))
 
 populations[0].record()
 externaldevices.activate_live_output_for(populations[0])
