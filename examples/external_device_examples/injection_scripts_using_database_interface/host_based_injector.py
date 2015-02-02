@@ -53,7 +53,7 @@ class HostBasedInjector(object):
         self._recieved_hand_shake_condition.notify()
         self._recieved_hand_shake_condition.release()
 
-    def __init__(self, max_spikes, pop_id):
+    def __init__(self, pop_id):
         self._injection_connection = \
             ReverseIPTagConnection(remote_host=config.get("Machine",
                                                           "machineName"),
@@ -66,8 +66,17 @@ class HostBasedInjector(object):
         self._recieved_hand_shake_condition = threading.Condition()
         self._recieved_hand_shake = False
         self._database_path = ""
-        self._max_spikes = max_spikes
         self._pop_id = pop_id
+        self._key_to_neuron_id_mapping = None
+        self._max_neurons = None
+
+    @property
+    def key_to_neuron_id_mapping(self):
+        return self._key_to_neuron_id_mapping
+
+    @property
+    def max_neurons(self):
+        return self._max_neurons
 
     def run(self):
         print "started \n"
@@ -82,23 +91,17 @@ class HostBasedInjector(object):
 
         print "reading database \n"
         #search though databse to find the key being used by my injector pop
-        key_to_neuron_id_mapping = self._query_database_for_key_mapping(cur)
-        max_neurons = self._query_for_max_neurons_for_pop(cur)
+        self._key_to_neuron_id_mapping = \
+            self._query_database_for_key_mapping(cur)
+        self._max_neurons = self._query_for_max_neurons_for_pop(cur)
         connection.close()
-
-        print "injecting spikes \n"
-        for spike in range(0, self._max_spikes):
-            self._inject_spike(spike, key_to_neuron_id_mapping, max_neurons)
-            sleep(1)
         self._recieved_hand_shake_condition.release()
 
-    def _inject_spike(self, spike, key_to_neuron_id_mapping, max_neurons):
-        spike_id = spike * math.floor((max_neurons / self._max_spikes))
-        key = key_to_neuron_id_mapping[spike_id]
+    def inject_spike(self, routing_key):
         header = EIEIOHeader(type_param=EIEIOTypeParam.KEY_32_BIT)
         message = EIEIOMessage(eieio_header=header)
-        message.write_data(key)
-        print "injecting with key {}\n".format(key)
+        message.write_data(routing_key)
+        print "injecting with routing_key {}\n".format(routing_key)
         self._injection_connection.send_eieio_message(message)
         print "spike injected \n"
 
@@ -117,5 +120,14 @@ class HostBasedInjector(object):
         return cur.fetchone()[0]
 
 if __name__ == "__main__":
-    injector = HostBasedInjector(5, "spike_injector_1")
+    injector = HostBasedInjector("spike_injector_1")
     injector.run()
+    max_spikes = 5
+
+    print "injecting spikes \n"
+    for spike in range(0, max_spikes):
+        spike_id = spike * math.floor((injector.max_neurons / max_spikes))
+        key = injector.key_to_neuron_id_mapping[spike_id]
+        injector.inject_spike(key)
+        sleep(1)
+    print "finished injecting spikes \n"
