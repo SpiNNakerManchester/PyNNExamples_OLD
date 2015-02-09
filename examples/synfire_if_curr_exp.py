@@ -92,4 +92,4 @@ if gsyn is not None:
         pylab.plot([i[2] for i in gsyn_for_neuron])
     pylab.show()
 
-# p.end()
+p.end()
