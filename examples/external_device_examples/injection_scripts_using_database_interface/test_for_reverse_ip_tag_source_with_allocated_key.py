@@ -18,7 +18,7 @@ cell_params_lif = {'cm'        : 0.25,  # nF
                    'v_thresh'  : -50.0
                   }
 
-cell_params_spike_injector = {'host_port_number': 12345}
+cell_params_spike_injector = {'port': 12345}
 
 populations = list()
 projections = list()
