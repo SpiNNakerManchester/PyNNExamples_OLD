@@ -5,7 +5,6 @@ import spynnaker_external_devices_plugin.pyNN as ExternalDevices
 #######################
 # import to allow prefix type for the prefix eieio protocol
 ######################
-from spinnman.messages.eieio.eieio_prefix_type import EIEIOPrefixType
 from spynnaker_external_devices_plugin.pyNN.connections\
     .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
 
@@ -13,6 +12,7 @@ from spynnaker_external_devices_plugin.pyNN.connections\
 import pylab
 import time
 import random
+from threading import Condition
 
 # initial call to set up the front end (pynn requirement)
 Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
@@ -37,10 +37,13 @@ cell_params_lif = {'cm': 0.25,
                    }
 
 ##################################
-# parameters for the injector population.  These parameters will work when
-# sending 32-bit keys.
-# NOTE: these parameters assume no prefix requirement - see below for a
-#       set of parameters with a default prefix
+# Parameters for the injector population.  This is the minimal set of
+# parameters required, which is for a set of spikes where the key is not
+# important.  Note that a virtual key *will* be assigned to the population,
+# and that spikes sent which do not match this virtual key will be dropped;
+# however, if spikes are sent using 16-bit keys, they will automatically be
+# made to match the virtual key.  The virtual key assigned can be obtained
+# from the database.
 ##################################
 cell_params_spike_injector = {
 
@@ -52,31 +55,23 @@ cell_params_spike_injector = {
 
 
 ##################################
-# parameters for the injector population.  The parameters will work best when
-# sending 16-bit keys.
+# Parameters for the injector population.  Note that each injector needs to
+# be given a different port.  The virtual key is assigned here, rather than
+# being allocated later.  As with the above, spikes injected need to match
+# this key, and this will be done automatically with 16-bit keys.
 ##################################
-cell_params_spike_injector_with_prefix = {
+cell_params_spike_injector_with_key = {
 
     # The port on which the spiNNaker machine should listen for packets.
     # Packets to be injected should be sent to this port on the spiNNaker
     # machine
     'port': 12346,
 
-    # The prefix and prefix type allow the injector to convert received 16-bit
-    # keys (or neuron ids) in to 32-bit spiNNaker keys.  With the settings
-    # below, the prefix of 7 is put in the upper 16-bits of the key, with the
-    # neuron id being the lower 16-bits.  Therefore, if 16-bit neuron id 4 is
-    # received, the key sent will be:
-    # (0x7 << 16) | 0x4 = 0x70000 | 0x4 = 0x70004
-    'prefix': 7,
-    'prefix_type': EIEIOPrefixType.UPPER_HALF_WORD,
-
     # This is the base key to be used for the injection, which is used to
-    # allow the keys to be routed around the spiNNaker machine.  All keys, once
-    # joined with the prefix, should have keys that look like this.  Since the
-    # prefix is specified as 7 in the upper half word, the key 0x70000 works,
-    # as long as 16-bit keys are received
-    'virtual_key': 0x70000,
+    # allow the keys to be routed around the spiNNaker machine.  This
+    # assignment means that 32-bit keys must have the high-order 16-bit
+    # set to 0x7; This will automatically be prepended to 16-bit keys.
+    'virtual_key': 0x70000
 }
 
 # create synfire populations (if cur exp)
@@ -87,10 +82,10 @@ pop_backward = Frontend.Population(n_neurons, Frontend.IF_curr_exp,
 
 # Create injection populations
 injector_forward = Frontend.Population(
-    n_neurons, ExternalDevices.ReverseIpTagMultiCastSource,
-    cell_params_spike_injector_with_prefix, label='spike_injector_forward')
+    n_neurons, ExternalDevices.SpikeInjector,
+    cell_params_spike_injector_with_key, label='spike_injector_forward')
 injector_backward = Frontend.Population(
-    n_neurons, ExternalDevices.ReverseIpTagMultiCastSource,
+    n_neurons, ExternalDevices.SpikeInjector,
     cell_params_spike_injector, label='spike_injector_backward')
 
 # Create a connection from the injector into the populations
@@ -121,12 +116,17 @@ pop_backward.record()
 ExternalDevices.activate_live_output_for(pop_forward)
 ExternalDevices.activate_live_output_for(pop_backward)
 
+# Create a condition to avoid overlapping prints
+print_condition = Condition()
+
 
 # Create a sender of packets for the forward population
 def send_input_forward(label, sender):
     for neuron_id in range(0, 100, 20):
         time.sleep(random.random() + 0.5)
+        print_condition.acquire()
         print "Sending forward spike", neuron_id
+        print_condition.release()
         sender.send_spike(label, neuron_id, send_full_keys=True)
 
 
@@ -135,14 +135,18 @@ def send_input_backward(label, sender):
     for neuron_id in range(0, 100, 20):
         real_id = 100 - neuron_id - 1
         time.sleep(random.random() + 0.5)
+        print_condition.acquire()
         print "Sending backward spike", real_id
+        print_condition.release()
         sender.send_spike(label, real_id)
 
 
 # Create a receiver of live spikes
 def receive_spikes(label, time, neuron_ids):
     for neuron_id in neuron_ids:
+        print_condition.acquire()
         print "Received spike at time", time, "from", label, "-", neuron_id
+        print_condition.release()
 
 # Set up the live connection for sending and receiving spikes
 live_spikes_connection = SpynnakerLiveSpikesConnection(
