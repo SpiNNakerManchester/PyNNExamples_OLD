@@ -1,5 +1,5 @@
-PLEASE note that you need to install sPyNNakerExternalDevicesPlugin for these examples to work.
+PLEASE NOTE: you need to install sPyNNakerExternalDevicesPlugin for these
+examples to work.
 
-insallation is done by the command
-
-pip install sPyNNakerExternalDevicesPlugin
+installation is done by the command:
+    pip install sPyNNakerExternalDevicesPlugin
