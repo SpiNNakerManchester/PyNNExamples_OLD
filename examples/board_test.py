@@ -1,20 +1,34 @@
 import pyNN.spiNNaker as p
 
-from spinnman.transceiver import create_transceiver_from_hostname
-from spinnman.model.core_subsets import CoreSubsets
-from spinnman.model.core_subset import CoreSubset
 from spinnman.model.cpu_state import CPUState
 
 from spynnaker.pyNN.exceptions import ExecutableFailedToStartException
 from spynnaker.pyNN.exceptions import ExecutableFailedToStopException
-from spynnaker.pyNN.utilities.conf import config
 
 import math
 import sys
+from spynnaker.pyNN.utilities.conf import config
+from spinnman.transceiver import create_transceiver_from_hostname
+from spinnman.model.core_subsets import CoreSubsets
+from spinnman.model.core_subset import CoreSubset
 
-hostname = None
-if len(sys.argv) > 1:
-    hostname = sys.argv[1]
+hostname = config.get("Machine", "machineName")
+down_chips = config.get("Machine", "down_chips")
+down_cores = config.get("Machine", "down_cores")
+version = config.getint("Machine", "version")
+for i in range(1, len(sys.argv)):
+    if sys.argv[i] == "-hostname":
+        hostname = sys.argv[i + 1]
+        i += 1
+    elif sys.argv[i] == "-down_chips":
+        downed_chips = sys.argv[i + 1]
+        i += 1
+    elif sys.argv[i] == "-down_cores":
+        downed_cores = sys.argv[i + 1]
+        i += 1
+    elif sys.argv[i] == "-version":
+        version = sys.argv[i + 1]
+        i += 1
 
 n_neurons_per_pop = 1
 spike_gap = 10
@@ -30,6 +44,7 @@ cell_params_lif = {'cm': 0.25,
                    'v_rest': -65.0,
                    'v_thresh': -50.0
                    }
+
 
 def create_injector(i, x, y, proc):
     pop = p.Population(n_neurons_per_pop, p.SpikeSourceArray,
@@ -57,31 +72,45 @@ def get_placement(population):
 errors = list()
 all_spikes = list()
 
-for do_injector_first in (True, False):
+# Get the machine details from a transceiver
+ignored_chips = None
+ignored_cores = None
+if down_chips is not None and down_chips != "None":
+    ignored_chips = CoreSubsets()
+    for down_chip in down_chips.split(":"):
+        x, y = down_chip.split(",")
+        ignored_chips.add_core_subset(CoreSubset(int(x), int(y), []))
+if down_cores is not None and down_cores != "None":
+    ignored_cores = CoreSubsets()
+    for down_core in down_cores.split(":"):
+        x, y, processor_id = down_core.split(",")
+        ignored_cores.add_processor(int(x), int(y), int(processor_id))
+transceiver = create_transceiver_from_hostname(
+    hostname, discover=False, ignore_chips=ignored_chips,
+    ignore_cores=ignored_cores)
+transceiver.ensure_board_is_ready(version)
+machine = transceiver.get_machine_details()
+cores = [(chip.x, chip.y, processor.processor_id)
+         for chip in machine.chips
+         for processor in filter(lambda proc: not proc.is_monitor,
+                                 chip.processors)]
+cores = sorted(cores)
+
+# Get the number of cores and use this to make the simulation
+n_cores = 0
+for chip in machine.chips:
+    for processor in chip.processors:
+        if not processor.is_monitor:
+            n_cores += 1
+n_pops = int(math.floor(n_cores / 2.0))
+print "n_cores =", n_cores, "n_pops =", n_pops
+spike_times = range(0, n_pops * spike_gap, spike_gap)
+run_time = (n_pops + 1) * spike_gap + 1
+
+for do_injector_first in [True, False]:
 
     # Set up for execution
     p.setup(1.0, machine=hostname)
-
-    # Do some hackery to get a machine
-    spynnaker = p.get_spynnaker()
-    spynnaker._setup_interfaces(spynnaker._hostname)
-    machine = spynnaker._machine
-    cores = [(chip.x, chip.y, processor.processor_id)
-             for chip in machine.chips
-            for processor in filter(lambda proc: not proc.is_monitor,
-                                    chip.processors)]
-    cores = sorted(cores)
-
-    # Get the number of cores and use this to make the simulation
-    n_cores = 0
-    for chip in machine.chips:
-        for processor in chip.processors:
-            if not processor.is_monitor:
-                n_cores += 1
-    n_pops = int(math.floor(n_cores / 2.0))
-    print "n_cores =", n_cores, "n_pops =", n_pops
-    spike_times = range(0, n_pops * spike_gap, spike_gap)
-    run_time = (n_pops + 1) * spike_gap + 1
 
     injectors = list()
     populations = list()
@@ -123,19 +152,20 @@ for do_injector_first in (True, False):
                              (i - (last_failed_pop + 1)) + 1)
                 expected_out_times = [float(t)
                                       for _ in range(n_neurons_per_pop)
-                                      for t in range(start,
+                                      for t in range(
+                                          start,
                                           (i + 1) * spike_gap, spike_gap - 1)]
                 out_times = [spike[1] for spike in spikes]
                 if out_times != expected_out_times:
                     placement = get_placement(population)
                     errors.append(
                         (placement.x, placement.y, placement.p,
-                        "Spiked at {} instead of {} (injection = {})".format(
-                            out_times, expected_out_times, spike_times[i])))
+                         "Spiked at {} instead of {} (injection = {})".format(
+                             out_times, expected_out_times, spike_times[i])))
                 else:
                     all_spikes.append((population.label, spikes))
     except ExecutableFailedToStartException, ExecutableFailedToStopException:
-        core_infos = self._txrx.get_cpu_information()
+        core_infos = transceiver.get_cpu_information()
         core_info_dict = dict()
         for core_info in core_infos:
             core_info_dict[core_info.x, core_info.y, core_info.p] = core_info
