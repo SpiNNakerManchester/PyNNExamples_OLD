@@ -6,7 +6,7 @@ import pylab
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 nNeurons = 10  # number of neurons in each population
-run_time = 30000
+run_time = 6000
 
 
 cell_params_lif = {'cm': 0.25,
@@ -24,7 +24,7 @@ populations = list()
 projections = list()
 
 weight_to_spike = 10.0
-delay = 10
+delay = 2
 second_spike_start = delay * nNeurons
 space_between_inputs = delay * nNeurons * 2
 
@@ -40,7 +40,7 @@ input_1 = [i for i in xrange(0, run_time, space_between_inputs)]
 input_2 = [i for i in xrange(second_spike_start, run_time,
                              space_between_inputs)]
 spikeArray = {'spike_times': [input_1, input_2],
-              'max_on_chip_memory_usage_for_spikes_in_bytes': 46}
+              'max_on_chip_memory_usage_for_spikes_in_bytes': 92}
 pop_1 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_1')
 pop_2 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_2')
 input_spikes = p.Population(2, p.SpikeSourceArray, spikeArray,
