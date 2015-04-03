@@ -50,6 +50,8 @@ p.setup(timestep=1.0)
 # # FPGA Retina - Merged Polarity
 # retina_pop = p.Population(
 #     None, q.ExternalFPGARetinaDevice, get_updated_params({
+#         'virtual_chip_x': 8,
+#         'virtual_chip_y': 0,
 #         'mode': q.ExternalFPGARetinaDevice.MODE_128,
 #         'polarity': q.ExternalFPGARetinaDevice.MERGED_POLARITY}),
 #     label='External retina')
@@ -57,6 +59,8 @@ p.setup(timestep=1.0)
 # # FPGA Retina - Up Polarity
 # retina_pop = p.Population(
 #     None, q.ExternalFPGARetinaDevice, get_updated_params({
+#         'virtual_chip_x': 9,
+#         'virtual_chip_y': 0,
 #         'mode': q.ExternalFPGARetinaDevice.MODE_128,
 #         'polarity': q.ExternalFPGARetinaDevice.UP_POLARITY}),
 #     label='External retina')
@@ -64,6 +68,8 @@ p.setup(timestep=1.0)
 # FPGA Retina - Down Polarity
 retina_pop = p.Population(
     None, q.ExternalFPGARetinaDevice, get_updated_params({
+        'virtual_chip_x': 10,
+        'virtual_chip_y': 0,
         'mode': q.ExternalFPGARetinaDevice.MODE_128,
         'polarity': q.ExternalFPGARetinaDevice.DOWN_POLARITY}),
     label='External retina')
