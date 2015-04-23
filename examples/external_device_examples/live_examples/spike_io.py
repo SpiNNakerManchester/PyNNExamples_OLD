@@ -203,8 +203,8 @@ if len(spikes_forward) != 0 or len(spikes_backward) != 0:
     if len(spikes_backward) != 0:
         pylab.plot([i[1] for i in spikes_backward],
                    [i[0] for i in spikes_backward], "r.")
-    pylab.xlabel('neuron id')
-    pylab.ylabel('Time/ms')
+    pylab.ylabel('neuron id')
+    pylab.xlabel('Time/ms')
     pylab.title('spikes')
     pylab.show()
 else:
