@@ -8,9 +8,17 @@ import spynnaker_external_devices_plugin.pyNN as q
 from spynnaker_external_devices_plugin.pyNN.connections\
     .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
 
+# How regularily to display frames
 FRAME_TIME_MS = 33
-RESOLUTION = 32
-DECAY_TIME_CONSTANT_MS = 644
+
+# Resolution to start retina with
+RESOLUTION = q.PushBotRetinaResolution.Downsample32
+
+# Time constant of pixel decay
+DECAY_TIME_CONSTANT_MS = 100
+
+# Value of brightest pixel to show
+DISPLAY_MAX = 33.0
 
 # Setup
 p.setup(timestep=1.0)
@@ -23,7 +31,7 @@ retina_pop = p.Population(None, q.PushBotRetinaDevice, {
     "virtual_chip_x": 5,
     "virtual_chip_y": 0,
     "polarity": q.PushBotRetinaPolarity.Merged,
-    "resolution": q.PushBotRetinaResolution.Downsample32})
+    "resolution": RESOLUTION})
 
 
 # Activate live retina output
@@ -32,13 +40,13 @@ q.activate_live_output_for(retina_pop, host="0.0.0.0", port=17893)
 # Take a flat numpy array of image data and convert it into a square
 def get_square_image_data_view(image_data):
     image_data_view = image_data.view()
-    image_data_view.shape = (RESOLUTION, RESOLUTION)
+    image_data_view.shape = (RESOLUTION.value.pixels, RESOLUTION.value.pixels)
     return image_data_view
 
 # Create image plot of retina output
 fig = plt.figure()
-image_data = numpy.zeros(RESOLUTION * RESOLUTION)
-image = plt.imshow(get_square_image_data_view(image_data), interpolation="nearest", cmap="jet", vmin=0.0, vmax=float(FRAME_TIME_MS))
+image_data = numpy.zeros(RESOLUTION.value.pixels ** 2)
+image = plt.imshow(get_square_image_data_view(image_data), interpolation="nearest", cmap="jet", vmin=0.0, vmax=DISPLAY_MAX)
 
 # Open socket to receive datagrams
 spike_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,8 +54,7 @@ spike_socket.bind(("0.0.0.0", 17893))
 spike_socket.setblocking(False)
 
 # Determine mask for coordinates
-coordinate_bits = int(math.log(RESOLUTION, 2))
-coordinate_mask = (1 << (2 * coordinate_bits)) - 1
+coordinate_mask = (1 << (2 * RESOLUTION.value.coordinate_bits)) - 1
 
 # Calculate delay proportion each frame
 decay_proportion = math.exp(-float(FRAME_TIME_MS) / float(DECAY_TIME_CONSTANT_MS))
@@ -86,6 +93,11 @@ def updatefig(frame):
 # Play animation
 ani = animation.FuncAnimation(fig, updatefig, interval=FRAME_TIME_MS, blit=True)
 
+# Run infinite simulation (non-blocking)
 p.run(None)
+
+# Show animated plot (blocking)
 plt.show()
+
+# End simulation
 p.end()
