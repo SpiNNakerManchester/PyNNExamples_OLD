@@ -86,7 +86,7 @@ if down_cores is not None and down_cores != "None":
         x, y, processor_id = down_core.split(",")
         ignored_cores.add_processor(int(x), int(y), int(processor_id))
 transceiver = create_transceiver_from_hostname(
-    hostname, discover=False, ignore_chips=ignored_chips,
+    hostname, ignore_chips=ignored_chips,
     ignore_cores=ignored_cores)
 transceiver.ensure_board_is_ready(version)
 machine = transceiver.get_machine_details()
