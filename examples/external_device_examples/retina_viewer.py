@@ -5,8 +5,6 @@ import matplotlib.animation as animation
 import socket
 import spynnaker.pyNN as p
 import spynnaker_external_devices_plugin.pyNN as q
-from spynnaker_external_devices_plugin.pyNN.connections\
-    .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
 
 # How regularily to display frames
 FRAME_TIME_MS = 33
@@ -37,6 +35,7 @@ retina_pop = p.Population(None, q.PushBotRetinaDevice, {
 # Activate live retina output
 q.activate_live_output_for(retina_pop, host="0.0.0.0", port=17893)
 
+
 # Take a flat numpy array of image data and convert it into a square
 def get_square_image_data_view(image_data):
     image_data_view = image_data.view()
@@ -46,7 +45,9 @@ def get_square_image_data_view(image_data):
 # Create image plot of retina output
 fig = plt.figure()
 image_data = numpy.zeros(RESOLUTION.value.pixels ** 2)
-image = plt.imshow(get_square_image_data_view(image_data), interpolation="nearest", cmap="jet", vmin=0.0, vmax=DISPLAY_MAX)
+image = plt.imshow(get_square_image_data_view(image_data),
+                   interpolation="nearest", cmap="jet",
+                   vmin=0.0, vmax=DISPLAY_MAX)
 
 # Open socket to receive datagrams
 spike_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -57,41 +58,44 @@ spike_socket.setblocking(False)
 coordinate_mask = (1 << (2 * RESOLUTION.value.coordinate_bits)) - 1
 
 # Calculate delay proportion each frame
-decay_proportion = math.exp(-float(FRAME_TIME_MS) / float(DECAY_TIME_CONSTANT_MS))
+decay_proportion = math.exp(-float(FRAME_TIME_MS) /
+                            float(DECAY_TIME_CONSTANT_MS))
+
 
 def updatefig(frame):
     global image_data, image, spike_socket, decay_proportion, coordinate_mask
-    
+
     # Read all datagrams received during last frame
     while True:
         try:
             raw_data = spike_socket.recv(512)
-        except socket.error, e:
+        except socket.error:
             # If error isn't just a non-blocking read fail, print it
-            #if e != "[Errno 11] Resource temporarily unavailable":
+            # if e != "[Errno 11] Resource temporarily unavailable":
             #    print "Error '%s'" % e
-            
+
             # Stop reading datagrams
             break
         else:
             # Slice off eieio header and convert to numpy array of uint32
             payload = numpy.fromstring(raw_data[2:], dtype="uint32")
-            
+
             # Mask out x, y coordinates
             payload &= coordinate_mask
-            
+
             # Increment these pixels
             image_data[payload] += 1.0
-            
+
     # Decay image data
     image_data *= decay_proportion
-    
+
     # Set image data
     image.set_array(get_square_image_data_view(image_data))
     return [image]
 
 # Play animation
-ani = animation.FuncAnimation(fig, updatefig, interval=FRAME_TIME_MS, blit=True)
+ani = animation.FuncAnimation(fig, updatefig, interval=FRAME_TIME_MS,
+                              blit=True)
 
 # Run infinite simulation (non-blocking)
 p.run(None)
