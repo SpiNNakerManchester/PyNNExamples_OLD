@@ -14,8 +14,20 @@ import time
 import random
 from threading import Condition
 
+# boolean allowing users to use python or c vis
+using_c_vis = False
+
 # initial call to set up the front end (pynn requirement)
-Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
+if not using_c_vis:
+    Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
+else:
+    data_base_sockets = list()
+    data_base_sockets.append(Frontend.SocketAddress(
+        listen_port=19998, notify_port_no=19999, notify_host_name="localhost"))
+    data_base_sockets.append(Frontend.SocketAddress(
+        listen_port=None, notify_port_no=19996, notify_host_name="localhost"))
+    Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0,
+                   database_socket_addresses=data_base_sockets)
 
 # neurons per population and the length of runtime in ms for the simulation,
 # as well as the expected weight each spike will contain
@@ -149,19 +161,30 @@ def receive_spikes(label, time, neuron_ids):
         print_condition.release()
 
 # Set up the live connection for sending and receiving spikes
-live_spikes_connection = SpynnakerLiveSpikesConnection(
-    receive_labels=["pop_forward", "pop_backward"],
-    send_labels=["spike_injector_forward", "spike_injector_backward"])
+if not using_c_vis:
+    live_spikes_connection = SpynnakerLiveSpikesConnection(
+        receive_labels=["pop_forward", "pop_backward"],
+        send_labels=["spike_injector_forward", "spike_injector_backward"])
 
-# Set up callbacks to occur at the start of simulation
-live_spikes_connection.add_start_callback("spike_injector_forward",
-                                          send_input_forward)
-live_spikes_connection.add_start_callback("spike_injector_backward",
-                                          send_input_backward)
+    # Set up callbacks to occur at the start of simulation
+    live_spikes_connection.add_start_callback("spike_injector_forward",
+                                              send_input_forward)
+    live_spikes_connection.add_start_callback("spike_injector_backward",
+                                              send_input_backward)
 
-# Set up callbacks to occur when spikes are received
-live_spikes_connection.add_receive_callback("pop_forward", receive_spikes)
-live_spikes_connection.add_receive_callback("pop_backward", receive_spikes)
+    # Set up callbacks to occur when spikes are received
+    live_spikes_connection.add_receive_callback("pop_forward", receive_spikes)
+    live_spikes_connection.add_receive_callback("pop_backward", receive_spikes)
+else:
+    live_spikes_connection = SpynnakerLiveSpikesConnection(
+        receive_labels=None, local_port=19996,
+        send_labels=["spike_injector_forward", "spike_injector_backward"])
+
+    # Set up callbacks to occur at the start of simulation
+    live_spikes_connection.add_start_callback("spike_injector_forward",
+                                              send_input_forward)
+    live_spikes_connection.add_start_callback("spike_injector_backward",
+                                              send_input_backward)
 
 
 # Run the simulation on spiNNaker
@@ -180,8 +203,8 @@ if len(spikes_forward) != 0 or len(spikes_backward) != 0:
     if len(spikes_backward) != 0:
         pylab.plot([i[1] for i in spikes_backward],
                    [i[0] for i in spikes_backward], "r.")
-    pylab.xlabel('neuron id')
-    pylab.ylabel('Time/ms')
+    pylab.ylabel('neuron id')
+    pylab.xlabel('Time/ms')
     pylab.title('spikes')
     pylab.show()
 else:
