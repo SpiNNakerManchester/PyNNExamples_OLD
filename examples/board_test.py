@@ -4,31 +4,43 @@ from spinnman.model.cpu_state import CPUState
 
 from spynnaker.pyNN.exceptions import ExecutableFailedToStartException
 from spynnaker.pyNN.exceptions import ExecutableFailedToStopException
+from spynnaker.pyNN.utilities.conf import config
+
+from spinn_front_end_common.interface.front_end_common_interface_functions \
+    import FrontEndCommonInterfaceFunctions
 
 import math
-import sys
-from spynnaker.pyNN.utilities.conf import config
-from spinnman.transceiver import create_transceiver_from_hostname
-from spinnman.model.core_subsets import CoreSubsets
-from spinnman.model.core_subset import CoreSubset
+
+width = config.get("Machine", "width")
+height = config.get("Machine", "height")
+if width == "None":
+    width = None
+else:
+    width = int(width)
+if height == "None":
+    height = None
+else:
+    height = int(height)
+
+number_of_boards = config.get("Machine", "number_of_boards")
+if number_of_boards == "None":
+    number_of_boards = None
 
 hostname = config.get("Machine", "machineName")
-down_chips = config.get("Machine", "down_chips")
-down_cores = config.get("Machine", "down_cores")
-version = config.getint("Machine", "version")
-for i in range(1, len(sys.argv)):
-    if sys.argv[i] == "-hostname":
-        hostname = sys.argv[i + 1]
-        i += 1
-    elif sys.argv[i] == "-down_chips":
-        downed_chips = sys.argv[i + 1]
-        i += 1
-    elif sys.argv[i] == "-down_cores":
-        downed_cores = sys.argv[i + 1]
-        i += 1
-    elif sys.argv[i] == "-version":
-        version = sys.argv[i + 1]
-        i += 1
+board_version = config.getint("Machine", "version")
+
+interface = FrontEndCommonInterfaceFunctions(None, None)
+interface._setup_interfaces(
+    hostname=hostname,
+    bmp_details=config.get("Machine", "bmp_names"),
+    downed_chips=config.get("Machine", "down_chips"),
+    downed_cores=config.get("Machine", "down_cores"),
+    board_version=board_version,
+    number_of_boards=number_of_boards, width=width, height=height,
+    is_virtual=config.getboolean("Machine", "virtual_board"),
+    virtual_has_wrap_arounds=config.getboolean(
+        "Machine", "requires_wrap_arounds"))
+
 
 n_neurons_per_pop = 1
 spike_gap = 10
@@ -73,22 +85,8 @@ errors = list()
 all_spikes = list()
 
 # Get the machine details from a transceiver
-ignored_chips = None
-ignored_cores = None
-if down_chips is not None and down_chips != "None":
-    ignored_chips = CoreSubsets()
-    for down_chip in down_chips.split(":"):
-        x, y = down_chip.split(",")
-        ignored_chips.add_core_subset(CoreSubset(int(x), int(y), []))
-if down_cores is not None and down_cores != "None":
-    ignored_cores = CoreSubsets()
-    for down_core in down_cores.split(":"):
-        x, y, processor_id = down_core.split(",")
-        ignored_cores.add_processor(int(x), int(y), int(processor_id))
-transceiver = create_transceiver_from_hostname(
-    hostname, ignore_chips=ignored_chips,
-    ignore_cores=ignored_cores)
-transceiver.ensure_board_is_ready(version)
+transceiver = interface._txrx
+transceiver.ensure_board_is_ready(board_version)
 machine = transceiver.get_machine_details()
 cores = [(chip.x, chip.y, processor.processor_id)
          for chip in machine.chips
