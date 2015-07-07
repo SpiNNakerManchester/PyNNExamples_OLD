@@ -15,6 +15,9 @@ import random
 from threading import Condition
 
 class PyNNScript(object):
+    """
+    the class which contains the pynn script
+    """
 
     def __init__(self):
 
@@ -165,7 +168,7 @@ class GUI(object):
 
     def __init__(self, n_neurons):
         """
-
+        creates the gui
         :return:
         """
         self._started = False
@@ -199,9 +202,9 @@ class GUI(object):
     # Create a sender of packets for the forward population
     def send_input_forward(self, pop_label, _):
         """
-
-        :param pop_label:
-        :param _:
+        records that stuff has started on the spinnaker machine
+        :param pop_label: label
+        :param _: dont care
         :return:
         """
         self._started = True
@@ -209,7 +212,8 @@ class GUI(object):
     # add a gui with a button and scroll list
     def inject_spike(self):
         """
-
+        is set off when inject is pressed, takes the vlaues from the spin
+        boxes and fires a spike in.
         :return:
         """
         print "injecting with neuron_id {} to pop {}".format(
@@ -218,4 +222,5 @@ class GUI(object):
             self.live_spikes_connection.send_spike(str(self.pop_label.get()),
                                                    int(self.neuron_id.get()))
 
+# set up the initial script
 script = PyNNScript()
