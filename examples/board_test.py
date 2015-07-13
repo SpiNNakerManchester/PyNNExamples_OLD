@@ -178,7 +178,7 @@ for do_injector_first in [True, False]:
                 subvertex)
             core_info = core_info_dict[placement.x, placement.y, placement.p]
             if core_info.state not in (CPUState.RUNNING, CPUState.SYNC0,
-                                       CPUState.FINSHED):
+                                       CPUState.FINISHED):
                 errors.append((core_info.x, core_info.y, core_info.p,
                                "CPU State is {}".format(core_info.state)))
     p.end()
