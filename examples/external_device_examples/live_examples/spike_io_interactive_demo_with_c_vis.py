@@ -10,9 +10,8 @@ from spynnaker_external_devices_plugin.pyNN.connections\
 
 # plotter in python
 import pylab
-import time
-import random
-from threading import Condition
+from multiprocessing import freeze_support
+
 
 class PyNNScript(object):
     """
@@ -24,13 +23,14 @@ class PyNNScript(object):
         # initial call to set up the front end (pynn requirement)
         Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 
-        # neurons per population and the length of runtime in ms for the simulation,
-        # as well as the expected weight each spike will contain
+        # neurons per population and the length of runtime in ms for the
+        # simulation, as well as the expected weight each spike will contain
         self.n_neurons = 100
         run_time = 100000
         weight_to_spike = 2.0
 
-        # neural parameters of the ifcur model used to respond to injected spikes.
+        # neural parameters of the IF_curr model used to respond to injected
+        # spikes.
         # (cell params for a synfire chain)
         cell_params_lif = {'cm': 0.25,
                            'i_offset': 0.0,
@@ -45,37 +45,40 @@ class PyNNScript(object):
 
         ##################################
         # Parameters for the injector population.  This is the minimal set of
-        # parameters required, which is for a set of spikes where the key is not
-        # important.  Note that a virtual key *will* be assigned to the population,
-        # and that spikes sent which do not match this virtual key will be dropped;
-        # however, if spikes are sent using 16-bit keys, they will automatically be
-        # made to match the virtual key.  The virtual key assigned can be obtained
-        # from the database.
+        # parameters required, which is for a set of spikes where the key is
+        # not important.  Note that a virtual key *will* be assigned to the
+        # population, and that spikes sent which do not match this virtual key
+        # will be dropped; however, if spikes are sent using 16-bit keys, they
+        # will automatically be made to match the virtual key.  The virtual
+        # key assigned can be obtained from the database.
         ##################################
         cell_params_spike_injector = {
 
-            # The port on which the spiNNaker machine should listen for packets.
-            # Packets to be injected should be sent to this port on the spiNNaker
-            # machine
+            # The port on which the spiNNaker machine should listen for
+            # packets. Packets to be injected should be sent to this port on
+            # the spiNNaker machine
             'port': 12345
         }
+
         ##################################
-        # Parameters for the injector population.  Note that each injector needs to
-        # be given a different port.  The virtual key is assigned here, rather than
-        # being allocated later.  As with the above, spikes injected need to match
-        # this key, and this will be done automatically with 16-bit keys.
+        # Parameters for the injector population.  Note that each injector
+        # needs to be given a different port.  The virtual key is assigned
+        # here, rather than being allocated later.  As with the above, spikes
+        # injected need to match this key, and this will be done automatically
+        # with 16-bit keys.
         ##################################
         cell_params_spike_injector_with_key = {
 
-            # The port on which the spiNNaker machine should listen for packets.
-            # Packets to be injected should be sent to this port on the spiNNaker
-            # machine
+            # The port on which the spiNNaker machine should listen for
+            # packets. Packets to be injected should be sent to this port on
+            # the spiNNaker machine
             'port': 12346,
 
-            # This is the base key to be used for the injection, which is used to
-            # allow the keys to be routed around the spiNNaker machine.  This
-            # assignment means that 32-bit keys must have the high-order 16-bit
-            # set to 0x7; This will automatically be prepended to 16-bit keys.
+            # This is the base key to be used for the injection, which is used
+            # to allow the keys to be routed around the spiNNaker machine.
+            # This assignment means that 32-bit keys must have the high-order
+            # 16-bit set to 0x7; This will automatically be prepended to
+            # 16-bit keys.
             'virtual_key': 0x70000
         }
 
@@ -90,20 +93,24 @@ class PyNNScript(object):
         # Create injection populations
         injector_forward = Frontend.Population(
             self.n_neurons, ExternalDevices.SpikeInjector,
-            cell_params_spike_injector_with_key, label='spike_injector_forward')
+            cell_params_spike_injector_with_key,
+            label='spike_injector_forward')
         injector_backward = Frontend.Population(
             self.n_neurons, ExternalDevices.SpikeInjector,
             cell_params_spike_injector, label='spike_injector_backward')
 
         # Create a connection from the injector into the populations
-        Frontend.Projection(injector_forward, pop_forward,
-                            Frontend.OneToOneConnector(weights=weight_to_spike))
-        Frontend.Projection(injector_backward, pop_backward,
-                            Frontend.OneToOneConnector(weights=weight_to_spike))
+        Frontend.Projection(
+            injector_forward, pop_forward,
+            Frontend.OneToOneConnector(weights=weight_to_spike))
+        Frontend.Projection(
+            injector_backward, pop_backward,
+            Frontend.OneToOneConnector(weights=weight_to_spike))
 
-        # Synfire chain connections where each neuron is connected to its next neuron
-        # NOTE: there is no recurrent connection so that each chain stops once it
-        # reaches the end
+        # Synfire chain connections where each neuron is connected to its next
+        # neuron
+        # NOTE: there is no recurrent connection so that each chain stops once
+        # it reaches the end
         loop_forward = list()
         loop_backward = list()
         for i in range(0, self.n_neurons - 1):
@@ -116,8 +123,8 @@ class PyNNScript(object):
         Frontend.Projection(pop_backward, pop_backward,
                             Frontend.FromListConnector(loop_backward))
 
-        # record spikes from the synfire chains so that we can read off valid results
-        # in a safe way afterwards, and verify the behavior
+        # record spikes from the synfire chains so that we can read off valid
+        # results in a safe way afterwards, and verify the behavior
         pop_forward.record()
         pop_backward.record()
 
@@ -156,10 +163,11 @@ class PyNNScript(object):
         else:
             print "No spikes received"
 
-        # Clear data structures on spiNNaker to leave the machine in a clean state for
-        # future executions
+        # Clear data structures on spiNNaker to leave the machine in a clean
+        # state for future executions
         Frontend.end()
         p.join()
+
 
 class GUI(object):
     """
@@ -178,8 +186,8 @@ class GUI(object):
             send_labels=["spike_injector_forward", "spike_injector_backward"])
 
         # Set up callbacks to occur at the start of simulation
-        self.live_spikes_connection.add_start_callback("spike_injector_forward",
-                                                       self.send_input_forward)
+        self.live_spikes_connection.add_start_callback(
+            "spike_injector_forward", self.send_input_forward)
         import Tkinter as tk
         root = tk.Tk()
         root.title("Injecting Spikes GUI")
@@ -223,4 +231,6 @@ class GUI(object):
                                                    int(self.neuron_id.get()))
 
 # set up the initial script
-script = PyNNScript()
+if __name__ == '__main__':
+    freeze_support()
+    script = PyNNScript()
