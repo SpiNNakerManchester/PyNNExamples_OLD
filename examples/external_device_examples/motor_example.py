@@ -20,8 +20,7 @@ projections = list()
 
 input_population = p.Population(1, p.SpikeSourcePoisson, {'rate': 1})
 motor_population = q.MunichMotorPopulation(
-    virtual_chip_x=0, virtual_chip_y=5, connected_to_real_chip_x=0,
-    connected_to_real_chip_y=0, connected_to_real_chip_link_id=4)
+    virtual_chip_x=0, virtual_chip_y=5, spinnaker_link_id=0)
 
 p.Projection(input_population, motor_population,
              p.FromListConnector([(0, 0, 2.0, 1.0)]))
