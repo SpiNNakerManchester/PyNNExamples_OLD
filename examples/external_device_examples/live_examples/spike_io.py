@@ -15,7 +15,7 @@ import random
 from threading import Condition
 
 # boolean allowing users to use python or c vis
-using_c_vis = True
+using_c_vis = False
 
 # initial call to set up the front end (pynn requirement)
 Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
