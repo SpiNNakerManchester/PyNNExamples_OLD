@@ -18,16 +18,8 @@ from threading import Condition
 using_c_vis = False
 
 # initial call to set up the front end (pynn requirement)
-if not using_c_vis:
-    Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
-else:
-    data_base_sockets = list()
-    data_base_sockets.append(Frontend.SocketAddress(
-        listen_port=19998, notify_port_no=19999, notify_host_name="localhost"))
-    data_base_sockets.append(Frontend.SocketAddress(
-        listen_port=None, notify_port_no=19996, notify_host_name="localhost"))
-    Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0,
-                   database_socket_addresses=data_base_sockets)
+Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
+
 
 # neurons per population and the length of runtime in ms for the simulation,
 # as well as the expected weight each spike will contain
@@ -125,8 +117,16 @@ pop_forward.record()
 pop_backward.record()
 
 # Activate the sending of live spikes
-ExternalDevices.activate_live_output_for(pop_forward)
-ExternalDevices.activate_live_output_for(pop_backward)
+if using_c_vis:
+    ExternalDevices.activate_live_output_for(
+        pop_forward, database_notify_host="localhost",
+        database_notify_port_num=19999)
+    ExternalDevices.activate_live_output_for(
+        pop_backward, database_notify_host="localhost",
+        database_notify_port_num=19999)
+else:
+    ExternalDevices.activate_live_output_for(pop_forward)
+    ExternalDevices.activate_live_output_for(pop_backward)
 
 # Create a condition to avoid overlapping prints
 print_condition = Condition()

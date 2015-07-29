@@ -47,7 +47,9 @@ projections.append(p.Projection(populations[1], populations[0],
 populations[0].record()
 
 # Activate live output for the population
-ExternalDevices.activate_live_output_for(populations[0])
+ExternalDevices.activate_live_output_for(
+    populations[0], database_notify_host="localhost",
+    database_notify_port_num=19999)
 
 # Start the simulation
 p.run(5000)
@@ -64,3 +66,5 @@ if spikes is not None:
     pylab.show()
 else:
     print "No spikes received"
+
+p.end()
