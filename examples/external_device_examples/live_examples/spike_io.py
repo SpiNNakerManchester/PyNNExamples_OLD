@@ -120,10 +120,10 @@ pop_backward.record()
 if using_c_vis:
     ExternalDevices.activate_live_output_for(
         pop_forward, database_notify_host="localhost",
-        database_notify_port_num=19996)
+        database_notify_port_num=19999)
     ExternalDevices.activate_live_output_for(
         pop_backward, database_notify_host="localhost",
-        database_notify_port_num=19996)
+        database_notify_port_num=19999)
 else:
     ExternalDevices.activate_live_output_for(pop_forward)
     ExternalDevices.activate_live_output_for(pop_backward)

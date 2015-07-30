@@ -11,6 +11,7 @@ from spynnaker_external_devices_plugin.pyNN.connections\
 # plotter in python
 import pylab
 from multiprocessing import freeze_support
+import Tkinter as tk
 
 
 class PyNNScript(object):
@@ -188,7 +189,6 @@ class GUI(object):
         # Set up callbacks to occur at the start of simulation
         self.live_spikes_connection.add_start_callback(
             "spike_injector_forward", self.send_input_forward)
-        import Tkinter as tk
         root = tk.Tk()
         root.title("Injecting Spikes GUI")
         label = tk.Label(root, fg="dark green")
