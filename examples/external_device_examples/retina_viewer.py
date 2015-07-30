@@ -23,9 +23,7 @@ p.setup(timestep=1.0)
 
 # Pushbot Retina - Down Polarity
 retina_pop = p.Population(None, q.PushBotRetinaDevice, {
-    "connected_to_real_chip_x": 0,
-    "connected_to_real_chip_y": 0,
-    "connected_to_real_chip_link_id": 4,
+    "spinnaker_link_id": 0,
     "virtual_chip_x": 5,
     "virtual_chip_y": 0,
     "polarity": q.PushBotRetinaPolarity.Merged,
