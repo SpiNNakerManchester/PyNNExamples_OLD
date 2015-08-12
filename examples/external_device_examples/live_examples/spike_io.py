@@ -15,7 +15,7 @@ import random
 from threading import Condition
 
 # boolean allowing users to use python or c vis
-using_c_vis = True
+using_c_vis = False
 
 # initial call to set up the front end (pynn requirement)
 Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
@@ -117,16 +117,12 @@ pop_forward.record()
 pop_backward.record()
 
 # Activate the sending of live spikes
-if using_c_vis:
-    ExternalDevices.activate_live_output_for(
-        pop_forward, database_notify_host="localhost",
-        database_notify_port_num=19996)
-    ExternalDevices.activate_live_output_for(
-        pop_backward, database_notify_host="localhost",
-        database_notify_port_num=19996)
-else:
-    ExternalDevices.activate_live_output_for(pop_forward)
-    ExternalDevices.activate_live_output_for(pop_backward)
+ExternalDevices.activate_live_output_for(
+    pop_forward, database_notify_host="localhost",
+    database_notify_port_num=19996)
+ExternalDevices.activate_live_output_for(
+    pop_backward, database_notify_host="localhost",
+    database_notify_port_num=19996)
 
 # Create a condition to avoid overlapping prints
 print_condition = Condition()
@@ -177,8 +173,7 @@ if not using_c_vis:
     # outputted spikes.
     live_spikes_connection = SpynnakerLiveSpikesConnection(
         receive_labels=["pop_forward", "pop_backward"],
-        local_port=19996,
-        send_labels=None)
+        local_port=19996, send_labels=None)
 
     # Set up callbacks to occur when spikes are received
     live_spikes_connection.add_receive_callback("pop_forward", receive_spikes)
