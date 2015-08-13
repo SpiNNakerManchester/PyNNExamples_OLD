@@ -11,7 +11,6 @@ p.setup(timestep=1.0, min_delay=1.0, max_delay=32.0)
 
 # set up the virtual chip coordinates for the motor
 connected_chip_coords = {'x': 0, 'y': 0}
-virtual_chip_coords = {'x': 0, 'y': 5}
 link = 4
 
 populations = list()
@@ -19,8 +18,7 @@ projections = list()
 
 
 input_population = p.Population(1, p.SpikeSourcePoisson, {'rate': 1})
-motor_population = q.MunichMotorPopulation(
-    virtual_chip_x=0, virtual_chip_y=5, spinnaker_link_id=0)
+motor_population = q.MunichMotorPopulation(spinnaker_link_id=0)
 
 p.Projection(input_population, motor_population,
              p.FromListConnector([(0, 0, 2.0, 1.0)]))
