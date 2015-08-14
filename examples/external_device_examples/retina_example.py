@@ -21,7 +21,7 @@ p.setup(timestep=1.0)
 # # Munich Right Retina - Down Polarity
 # retina_pop = p.Population(
 #     None, q.MunichRetinaDevice, get_updated_params({
-#         'fixed_key': 10,
+#         'retina_key': 0x5,
 #         'polarity': q.MunichRetinaDevice.DOWN_POLARITY,
 #         'position': q.MunichRetinaDevice.RIGHT_RETINA}),
 #     label='External retina')
@@ -29,7 +29,7 @@ p.setup(timestep=1.0)
 # # Munich Right Retina - Up Polarity
 # retina_pop = p.Population(
 #     None, q.MunichRetinaDevice, get_updated_params({
-#         'fixed_key': 10,
+#         'retina_key': 0x5,
 #         'polarity': q.MunichRetinaDevice.UP_POLARITY,
 #         'position': q.MunichRetinaDevice.RIGHT_RETINA}),
 #     label='External retina')
@@ -37,7 +37,7 @@ p.setup(timestep=1.0)
 # # Munich Left Retina - Merged Polarity
 # retina_pop = p.Population(
 #     None, q.MunichRetinaDevice, get_updated_params({
-#         'fixed_key': 10,
+#         'retina_key': 0x5,
 #         'polarity': q.MunichRetinaDevice.MERGED_POLARITY,
 #         'position': q.MunichRetinaDevice.LEFT_RETINA}),
 #     label='External retina')
@@ -45,7 +45,7 @@ p.setup(timestep=1.0)
 # # FPGA Retina - Merged Polarity
 # retina_pop = p.Population(
 #     None, q.ExternalFPGARetinaDevice, get_updated_params({
-#         'fixed_key': 10,
+#         'retina_key': 0x5,
 #         'mode': q.ExternalFPGARetinaDevice.MODE_128,
 #         'polarity': q.ExternalFPGARetinaDevice.MERGED_POLARITY}),
 #     label='External retina')
@@ -53,7 +53,7 @@ p.setup(timestep=1.0)
 # # FPGA Retina - Up Polarity
 # retina_pop = p.Population(
 #     None, q.ExternalFPGARetinaDevice, get_updated_params({
-#         'fixed_key': 10,
+#         'retina_key': 0x5,
 #         'mode': q.ExternalFPGARetinaDevice.MODE_128,
 #         'polarity': q.ExternalFPGARetinaDevice.UP_POLARITY}),
 #     label='External retina')
@@ -61,7 +61,7 @@ p.setup(timestep=1.0)
 # FPGA Retina - Down Polarity
 retina_pop = p.Population(
     None, q.ExternalFPGARetinaDevice, get_updated_params({
-        'fixed_key': 10 << 16,
+        'retina_key': 0x5,
         'mode': q.ExternalFPGARetinaDevice.MODE_128,
         'polarity': q.ExternalFPGARetinaDevice.DOWN_POLARITY}),
     label='External retina')
