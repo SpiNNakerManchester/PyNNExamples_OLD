@@ -5,8 +5,8 @@ import spynnaker_external_devices_plugin.pyNN as ExternalDevices
 #######################
 # import to allow prefix type for the prefix eieio protocol
 ######################
-from spynnaker_external_devices_plugin.pyNN.connections\
-    .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
+from spinn_front_end_common.utilities.connections.live_event_connection \
+    import SpynnakerLiveSpikesConnection
 
 # plotter in python
 import pylab
@@ -15,7 +15,7 @@ import random
 from threading import Condition
 
 # boolean allowing users to use python or c vis
-using_c_vis = False
+using_c_vis = True
 
 # initial call to set up the front end (pynn requirement)
 Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
