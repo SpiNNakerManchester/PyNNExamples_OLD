@@ -5,8 +5,8 @@ import spynnaker_external_devices_plugin.pyNN as ExternalDevices
 #######################
 # import to allow prefix type for the prefix eieio protocol
 ######################
-from spinn_front_end_common.utilities.connections.live_event_connection \
-    import SpynnakerLiveSpikesConnection
+from spynnaker_external_devices_plugin.pyNN.connections\
+    .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
 
 # plotter in python
 import pylab
