@@ -103,7 +103,7 @@ sim.run(sim_time)
 end_w = [p.getWeights()[0] for p in projections]
 
 # End simulation on SpiNNaker
-sim.end(stop_on_board=True)
+sim.end()
 
 # -------------------------------------------------------------------
 # Plot curve
