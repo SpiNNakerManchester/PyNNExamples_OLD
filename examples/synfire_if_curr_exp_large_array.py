@@ -40,7 +40,8 @@ input_1 = [i for i in xrange(0, run_time, space_between_inputs)]
 input_2 = [i for i in xrange(second_spike_start, run_time,
                              space_between_inputs)]
 spikeArray = {'spike_times': [input_1, input_2],
-              'max_on_chip_memory_usage_for_spikes_in_bytes': 92}
+              'max_on_chip_memory_usage_for_spikes_in_bytes': 640,
+              'space_before_notification': 320}
 pop_1 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_1')
 pop_2 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_2')
 input_spikes = p.Population(2, p.SpikeSourceArray, spikeArray,

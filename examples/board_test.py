@@ -5,6 +5,7 @@ from spinnman.model.cpu_state import CPUState
 from spynnaker.pyNN.exceptions import ExecutableFailedToStartException
 from spynnaker.pyNN.exceptions import ExecutableFailedToStopException
 from spynnaker.pyNN.utilities.conf import config
+from spinn_front_end_common.utilities.report_states import ReportState
 
 from spinn_front_end_common.interface.front_end_common_interface_functions \
     import FrontEndCommonInterfaceFunctions
@@ -29,8 +30,10 @@ if number_of_boards == "None":
 hostname = config.get("Machine", "machineName")
 board_version = config.getint("Machine", "version")
 
-interface = FrontEndCommonInterfaceFunctions(None, None)
-interface._setup_interfaces(
+report_states = ReportState(
+    False, False, False, False, False, False, False, False, False, False)
+interface = FrontEndCommonInterfaceFunctions(report_states, None, None)
+interface.setup_interfaces(
     hostname=hostname,
     bmp_details=config.get("Machine", "bmp_names"),
     downed_chips=config.get("Machine", "down_chips"),
@@ -154,7 +157,7 @@ for do_injector_first in [True, False]:
                                           start,
                                           (i + 1) * spike_gap, spike_gap - 1)]
                 out_times = [spike[1] for spike in spikes]
-                if out_times != expected_out_times:
+                if len(out_times) != len(expected_out_times):
                     placement = get_placement(population)
                     errors.append(
                         (placement.x, placement.y, placement.p,
