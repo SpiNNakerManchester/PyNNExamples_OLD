@@ -89,7 +89,7 @@ all_spikes = list()
 
 # Get the machine details from a transceiver
 transceiver = interface._txrx
-transceiver.ensure_board_is_ready(board_version)
+transceiver.ensure_board_is_ready()
 machine = transceiver.get_machine_details()
 cores = [(chip.x, chip.y, processor.processor_id)
          for chip in machine.chips
