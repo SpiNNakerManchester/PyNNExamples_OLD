@@ -162,22 +162,25 @@ live_spikes_connection_send = SpynnakerLiveSpikesConnection(
     send_labels=["spike_injector_forward", "spike_injector_backward"])
 
 # Set up callbacks to occur at the start of simulation
-live_spikes_connection_send.add_start_callback("spike_injector_forward",
-                                               send_input_forward)
-live_spikes_connection_send.add_start_callback("spike_injector_backward",
-                                               send_input_backward)
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_forward", send_input_forward)
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_backward", send_input_backward)
 
 if not using_c_vis:
-    # if not using the c visualiser, then a new spynnaker live spikes connection
-    # is created to define that there are python code which receives the
-    # outputted spikes.
+
+    # if not using the c visualiser, then a new spynnaker live spikes
+    # connection is created to define that there is a python function which
+    # receives the spikes.
     live_spikes_connection_receive = SpynnakerLiveSpikesConnection(
         receive_labels=["pop_forward", "pop_backward"],
         local_port=19996, send_labels=None)
 
     # Set up callbacks to occur when spikes are received
-    live_spikes_connection_receive.add_receive_callback("pop_forward", receive_spikes)
-    live_spikes_connection_receive.add_receive_callback("pop_backward", receive_spikes)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_forward", receive_spikes)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_backward", receive_spikes)
 
 
 # Run the simulation on spiNNaker
