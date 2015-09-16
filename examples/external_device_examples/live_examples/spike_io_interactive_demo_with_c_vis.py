@@ -12,7 +12,6 @@ from spynnaker_external_devices_plugin.pyNN.connections\
 import pylab
 from multiprocessing import freeze_support
 import Tkinter as tk
-import numpy
 
 
 class PyNNScript(object):
@@ -119,7 +118,7 @@ class PyNNScript(object):
                 cell_params_spike_injector, label='spike_injector_backward')
         else:
             spike_times = []
-            for element in range(0, self.n_neurons):
+            for _ in range(0, self.n_neurons):
                 spike_times.append([])
             spike_times[0] = [0]
             spike_times[20] = [(run_time / 100) * 20]
@@ -128,7 +127,7 @@ class PyNNScript(object):
             spike_times[80] = [(run_time / 100) * 80]
             cell_params_forward = {'spike_times': spike_times}
             spike_times_backwards = []
-            for element in range(0, self.n_neurons):
+            for _ in range(0, self.n_neurons):
                 spike_times_backwards.append([])
             spike_times_backwards[0] = [(run_time / 100) * 80]
             spike_times_backwards[20] = [(run_time / 100) * 60]
