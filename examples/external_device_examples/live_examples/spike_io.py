@@ -128,6 +128,13 @@ ExternalDevices.activate_live_output_for(
 print_condition = Condition()
 
 
+# Create an initialisation method
+def init_pop(label, n_neurons, run_time_ms, machine_timestep_ms):
+    print "{} has {} neurons".format(label, n_neurons)
+    print "Simulation will run for {}ms at {}ms timesteps".format(
+        run_time_ms, machine_timestep_ms)
+
+
 # Create a sender of packets for the forward population
 def send_input_forward(label, sender):
     for neuron_id in range(0, 100, 20):
@@ -160,6 +167,12 @@ def receive_spikes(label, time, neuron_ids):
 live_spikes_connection_send = SpynnakerLiveSpikesConnection(
     receive_labels=None, local_port=19999,
     send_labels=["spike_injector_forward", "spike_injector_backward"])
+
+# Set up callbacks to occur at initialisation
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_forward", init_pop)
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_backward", init_pop)
 
 # Set up callbacks to occur at the start of simulation
 live_spikes_connection_send.add_start_callback(
