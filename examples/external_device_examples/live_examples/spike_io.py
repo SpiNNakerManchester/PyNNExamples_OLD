@@ -128,6 +128,13 @@ ExternalDevices.activate_live_output_for(
 print_condition = Condition()
 
 
+# Create an initialisation method
+def init_pop(label, n_neurons, run_time_ms, machine_timestep_ms):
+    print "{} has {} neurons".format(label, n_neurons)
+    print "Simulation will run for {}ms at {}ms timesteps".format(
+        run_time_ms, machine_timestep_ms)
+
+
 # Create a sender of packets for the forward population
 def send_input_forward(label, sender):
     for neuron_id in range(0, 100, 20):
@@ -161,23 +168,32 @@ live_spikes_connection_send = SpynnakerLiveSpikesConnection(
     receive_labels=None, local_port=19999,
     send_labels=["spike_injector_forward", "spike_injector_backward"])
 
+# Set up callbacks to occur at initialisation
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_forward", init_pop)
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_backward", init_pop)
+
 # Set up callbacks to occur at the start of simulation
-live_spikes_connection_send.add_start_callback("spike_injector_forward",
-                                               send_input_forward)
-live_spikes_connection_send.add_start_callback("spike_injector_backward",
-                                               send_input_backward)
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_forward", send_input_forward)
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_backward", send_input_backward)
 
 if not using_c_vis:
-    # if not using the c visualiser, then a new spynnaker live spikes connection
-    # is created to define that there are python code which receives the
-    # outputted spikes.
+
+    # if not using the c visualiser, then a new spynnaker live spikes
+    # connection is created to define that there is a python function which
+    # receives the spikes.
     live_spikes_connection_receive = SpynnakerLiveSpikesConnection(
         receive_labels=["pop_forward", "pop_backward"],
         local_port=19996, send_labels=None)
 
     # Set up callbacks to occur when spikes are received
-    live_spikes_connection_receive.add_receive_callback("pop_forward", receive_spikes)
-    live_spikes_connection_receive.add_receive_callback("pop_backward", receive_spikes)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_forward", receive_spikes)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_backward", receive_spikes)
 
 
 # Run the simulation on spiNNaker
