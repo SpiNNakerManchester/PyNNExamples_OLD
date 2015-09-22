@@ -17,10 +17,13 @@ populations = list()
 projections = list()
 
 
-input_population = p.Population(1, p.SpikeSourcePoisson, {'rate': 1})
-motor_population = q.MunichMotorPopulation(spinnaker_link_id=0)
+input_population = p.Population(6, p.SpikeSourcePoisson, {'rate': 10})
+control_population = p.Population(6, p.IF_curr_exp, {})
+motor_device = p.Population(6, q.MunichMotorDevice, {"spinnaker_link_id": 0})
 
-p.Projection(input_population, motor_population,
-             p.FromListConnector([(0, 0, 2.0, 1.0)]))
+p.Projection(
+    input_population, control_population, p.OneToOneConnector(weights=5.0))
 
-p.run(10000)
+q.activate_live_output_to(control_population, motor_device)
+
+p.run(1000)
