@@ -54,11 +54,13 @@ p.Projection(input_spikes, pop_2, p.FromListConnector(injectionConnection_2))
 
 pop_1.record()
 pop_2.record()
+input_spikes.record()
 
 p.run(run_time)
 
 spikes_1 = pop_1.getSpikes()
 spikes_2 = pop_2.getSpikes()
+input_spikes_data = input_spikes.getSpikes()
 
 pylab.figure()
 pylab.plot([i[1] for i in spikes_1], [i[0] for i in spikes_1], "b.")
