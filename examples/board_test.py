@@ -42,7 +42,9 @@ interface.setup_interfaces(
     number_of_boards=number_of_boards, width=width, height=height,
     is_virtual=config.getboolean("Machine", "virtual_board"),
     virtual_has_wrap_arounds=config.getboolean(
-        "Machine", "requires_wrap_arounds"))
+        "Machine", "requires_wrap_arounds"),
+    auto_detect_bmp=config.getboolean("Machine", "auto_detect_bmp"),
+    enable_reinjection=config.getboolean("Machine", "enable_reinjection"))
 
 
 n_neurons_per_pop = 1
@@ -89,7 +91,6 @@ all_spikes = list()
 
 # Get the machine details from a transceiver
 transceiver = interface._txrx
-transceiver.ensure_board_is_ready()
 machine = transceiver.get_machine_details()
 cores = [(chip.x, chip.y, processor.processor_id)
          for chip in machine.chips
@@ -114,30 +115,36 @@ for do_injector_first in [True, False]:
     p.setup(1.0, machine=hostname)
 
     injectors = list()
-    populations = list()
     for i in range(n_pops):
         injector = None
-        pop = None
         (x1, y1, p1) = cores[i * 2]
         (x2, y2, p2) = cores[(i * 2) + 1]
         if do_injector_first:
             injector = create_injector(i, x1, y1, p1)
+        else:
+            injector = create_injector(i, x2, y2, p2)
+        injectors.append(injector)
+
+    populations = list()
+    for i in range(n_pops):
+        pop = None
+        (x1, y1, p1) = cores[i * 2]
+        (x2, y2, p2) = cores[(i * 2) + 1]
+        if do_injector_first:
             pop = create_pop(i, x2, y2, p2)
         else:
             pop = create_pop(i, x1, y1, p1)
-            injector = create_injector(i, x2, y2, p2)
         pop.record()
-        p.Projection(injector, pop, p.OneToOneConnector(weights=weight))
-        injectors.append(injector)
         populations.append(pop)
 
-    for i in range(n_pops - 1):
-        p.Projection(populations[i], populations[i + 1],
-                     p.AllToAllConnector(weights=weight / n_neurons_per_pop))
+    for i in range(n_pops):
+        for j in range(n_pops):
+            p.Projection(
+                injectors[j], populations[i],
+                p.AllToAllConnector(weights=(weight / n_neurons_per_pop)))
 
     try:
         p.run(run_time)
-        last_failed_pop = None
         for i in range(n_pops):
             population = populations[i]
             spikes = population.getSpikes()
@@ -145,24 +152,17 @@ for do_injector_first in [True, False]:
                 placement = get_placement(population)
                 errors.append((placement.x, placement.y, placement.p,
                                "Failed to spike"))
-                last_failed_pop = i
             else:
-                start = i + 1
-                if last_failed_pop is not None:
-                    start = (spike_times[last_failed_pop + 1] +
-                             (i - (last_failed_pop + 1)) + 1)
-                expected_out_times = [float(t)
-                                      for _ in range(n_neurons_per_pop)
-                                      for t in range(
-                                          start,
-                                          (i + 1) * spike_gap, spike_gap - 1)]
+
+                expected_out_times = [spike_time + 1
+                                      for spike_time in spike_times]
                 out_times = [spike[1] for spike in spikes]
                 if len(out_times) != len(expected_out_times):
                     placement = get_placement(population)
                     errors.append(
                         (placement.x, placement.y, placement.p,
-                         "Spiked at {} instead of {} (injection = {})".format(
-                             out_times, expected_out_times, spike_times[i])))
+                         "Spiked at {} instead of {}".format(
+                             out_times, expected_out_times)))
                 else:
                     all_spikes.append((population.label, spikes))
     except ExecutableFailedToStartException, ExecutableFailedToStopException:
