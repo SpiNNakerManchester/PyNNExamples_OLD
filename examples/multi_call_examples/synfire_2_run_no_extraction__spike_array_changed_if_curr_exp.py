@@ -34,6 +34,7 @@ for i in range(0, nNeurons):
 
 injectionConnection = [(0, 0, weight_to_spike, 1)]
 spikeArray = {'spike_times': [[0]]}
+modified_spike_array = [[0, 1050]]
 populations.append(p.Population(nNeurons, p.IF_curr_exp, cell_params_lif,
                    label='pop_1'))
 populations.append(p.Population(1, p.SpikeSourceArray, spikeArray,
@@ -50,10 +51,13 @@ populations[0].record()
 
 p.run(runtime)
 
+v = None
+gsyn = None
+spikes = None
+
 v = populations[0].get_v(compatible_output=True)
 gsyn = populations[0].get_gsyn(compatible_output=True)
 spikes = populations[0].getSpikes(compatible_output=True)
-
 
 if spikes is not None:
     print spikes
@@ -90,48 +94,7 @@ if gsyn is not None:
         pylab.plot([i[2] for i in gsyn_for_neuron])
     pylab.show()
 
-p.run(runtime)
-
-v = populations[0].get_v(compatible_output=True)
-gsyn = populations[0].get_gsyn(compatible_output=True)
-spikes = populations[0].getSpikes(compatible_output=True)
-
-
-if spikes is not None:
-    print spikes
-    pylab.figure()
-    pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".")
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('spikes')
-    pylab.title('spikes')
-    pylab.show()
-else:
-    print "No spikes received"
-
-# Make some graphs
-
-if v is not None:
-    ticks = len(v) / nNeurons
-    pylab.figure()
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('v')
-    pylab.title('v')
-    for pos in range(0, nNeurons, 20):
-        v_for_neuron = v[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[2] for i in v_for_neuron])
-    pylab.show()
-
-if gsyn is not None:
-    ticks = len(gsyn) / nNeurons
-    pylab.figure()
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('gsyn')
-    pylab.title('gsyn')
-    for pos in range(0, nNeurons, 20):
-        gsyn_for_neuron = gsyn[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[2] for i in gsyn_for_neuron])
-    pylab.show()
-
+populations[1].tset("spike_times", modified_spike_array)
 p.run(runtime)
 
 v = populations[0].get_v(compatible_output=True)

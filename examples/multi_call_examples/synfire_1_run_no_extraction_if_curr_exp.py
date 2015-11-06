@@ -32,7 +32,7 @@ for i in range(0, nNeurons):
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0, weight_to_spike, 1)]
-spikeArray = {'spike_times': [[0, 1050]]}
+spikeArray = {'spike_times': [[0]]}
 populations.append(p.Population(nNeurons, p.IF_curr_exp, cell_params_lif,
                    label='pop_1'))
 populations.append(p.Population(1, p.SpikeSourceArray, spikeArray,
