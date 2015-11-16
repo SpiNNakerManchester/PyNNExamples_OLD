@@ -3,7 +3,6 @@ Synfirechain-like example
 """
 import pyNN.spiNNaker as p
 import pylab
-import numpy
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 nNeurons = 200  # number of neurons in each population
