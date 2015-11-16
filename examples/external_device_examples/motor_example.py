@@ -27,3 +27,4 @@ p.Projection(
 q.activate_live_output_to(control_population, motor_device)
 
 p.run(1000)
+p.end()
