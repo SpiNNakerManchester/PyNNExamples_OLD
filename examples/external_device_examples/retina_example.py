@@ -73,3 +73,4 @@ p.Projection(retina_pop, population,
 
 q.activate_live_output_for(population)
 p.run(1000)
+p.end()
