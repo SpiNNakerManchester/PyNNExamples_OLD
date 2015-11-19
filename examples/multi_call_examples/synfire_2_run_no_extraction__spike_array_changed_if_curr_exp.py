@@ -1,7 +1,7 @@
 """
 Synfirechain-like example
 """
-import pyNN.spiNNaker as p
+from spynnaker import pyNN as p
 import pylab
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
