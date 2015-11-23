@@ -59,7 +59,7 @@ cell_params_lif = {'cm': 0.25,
 
 def create_injector(i, x, y, proc):
     pop = p.Population(n_neurons_per_pop, p.SpikeSourceArray,
-                       {"spike_times": [spike_times[i]]},
+                       {"spike_times": [spike_times]},
                        label="injector_{}".format(i))
     pop.add_placement_constraint(x, y, proc)
     return pop
@@ -132,10 +132,9 @@ for do_injector_first in [True, False]:
         populations.append(pop)
 
     for i in range(n_pops):
-        for j in range(n_pops):
-            p.Projection(
-                injectors[j], populations[i],
-                p.AllToAllConnector(weights=(weight / n_neurons_per_pop)))
+        p.Projection(
+            injectors[i], populations[i],
+            p.AllToAllConnector(weights=(weight / n_neurons_per_pop)))
 
     try:
         p.run(run_time)
