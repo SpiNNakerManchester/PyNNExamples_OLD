@@ -5,10 +5,9 @@ from spinnman.model.cpu_state import CPUState
 from spynnaker.pyNN.exceptions import ExecutableFailedToStartException
 from spynnaker.pyNN.exceptions import ExecutableFailedToStopException
 from spynnaker.pyNN.utilities.conf import config
-from spinn_front_end_common.utilities.report_states import ReportState
 
-from spinn_front_end_common.interface.front_end_common_interface_functions \
-    import FrontEndCommonInterfaceFunctions
+from spinn_front_end_common.interface.interface_functions\
+    .front_end_common_machine_interfacer import FrontEndCommonMachineInterfacer
 
 import math
 
@@ -30,22 +29,17 @@ if number_of_boards == "None":
 hostname = config.get("Machine", "machineName")
 board_version = config.getint("Machine", "version")
 
-report_states = ReportState(
-    False, False, False, False, False, False, False, False, False, False)
-interface = FrontEndCommonInterfaceFunctions(report_states, None, None)
-interface.setup_interfaces(
+interfacer = FrontEndCommonMachineInterfacer()
+interfacer_results = interfacer(
     hostname=hostname,
     bmp_details=config.get("Machine", "bmp_names"),
     downed_chips=config.get("Machine", "down_chips"),
     downed_cores=config.get("Machine", "down_cores"),
     board_version=board_version,
     number_of_boards=number_of_boards, width=width, height=height,
-    is_virtual=config.getboolean("Machine", "virtual_board"),
-    virtual_has_wrap_arounds=config.getboolean(
-        "Machine", "requires_wrap_arounds"),
     auto_detect_bmp=config.getboolean("Machine", "auto_detect_bmp"),
-    enable_reinjection=config.getboolean("Machine", "enable_reinjection"))
-
+    enable_reinjection=config.getboolean("Machine", "enable_reinjection"),
+    scamp_connection_data=None, boot_port_num=None)
 
 n_neurons_per_pop = 1
 spike_gap = 10
@@ -90,8 +84,8 @@ errors = list()
 all_spikes = list()
 
 # Get the machine details from a transceiver
-transceiver = interface._txrx
-machine = transceiver.get_machine_details()
+transceiver = interfacer_results["txrx"]
+machine = interfacer_results["machine"]
 cores = [(chip.x, chip.y, processor.processor_id)
          for chip in machine.chips
          for processor in filter(lambda proc: not proc.is_monitor,
