@@ -180,6 +180,7 @@ live_spikes_connection_send.add_start_callback(
 live_spikes_connection_send.add_start_callback(
     "spike_injector_backward", send_input_backward)
 
+live_spikes_connection_receive = None
 if not using_c_vis:
 
     # if not using the c visualiser, then a new spynnaker live spikes
