@@ -198,6 +198,7 @@ if not using_c_vis:
 
 # Run the simulation on spiNNaker
 Frontend.run(run_time)
+Frontend.run(run_time)
 
 # Retrieve spikes from the synfire chain population
 spikes_forward = pop_forward.getSpikes()
