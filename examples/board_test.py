@@ -39,7 +39,9 @@ interfacer_results = interfacer(
     number_of_boards=number_of_boards, width=width, height=height,
     auto_detect_bmp=config.getboolean("Machine", "auto_detect_bmp"),
     enable_reinjection=config.getboolean("Machine", "enable_reinjection"),
-    scamp_connection_data=None, boot_port_num=None)
+    scamp_connection_data=None, boot_port_num=None,
+    reset_machine_on_start_up=config.get(
+        "Machine", "reset_machine_on_startup"))
 
 n_neurons_per_pop = 1
 spike_gap = 10
