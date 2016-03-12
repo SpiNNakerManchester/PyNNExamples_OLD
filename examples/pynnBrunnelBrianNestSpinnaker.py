@@ -200,9 +200,9 @@ if esp is not None:
     ts_ext = [x[1] for x in esp]
     ids_ext = [x[0] for x in esp]
     pblt._make_plot(
-        ts_ext, ts_ext, ids_ext, ids_ext, True, 5.0, False,
+        ts_ext, ts_ext, ids_ext, ids_ext, len(ts_ext) > 0, 5.0, False,
         'Raster Plot of the excitatory population in %s' % simulator_Name,
         'Simulation Time (ms)', total_time=sim_time, n_neurons=N_E)
 
-plt.show()
+    plt.show()
 pynn.end()
