@@ -2,12 +2,14 @@ import pyNN.spiNNaker as p
 
 from spinnman.model.cpu_state import CPUState
 
-from spynnaker.pyNN.exceptions import ExecutableFailedToStartException
-from spynnaker.pyNN.exceptions import ExecutableFailedToStopException
 from spynnaker.pyNN.utilities.conf import config
 
 from spinn_front_end_common.interface.interface_functions\
     .front_end_common_machine_interfacer import FrontEndCommonMachineInterfacer
+from spinn_front_end_common.utilities.exceptions \
+    import ExecutableFailedToStartException
+from spinn_front_end_common.utilities.exceptions \
+    import ExecutableFailedToStopException
 
 import math
 
