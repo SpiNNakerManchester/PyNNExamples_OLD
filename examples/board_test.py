@@ -36,10 +36,10 @@ def create_pop(i, x, y, proc):
 def get_placement(population):
     vertex = population._vertex
     spinnaker = population._spinnaker
-    subvertices = spinnaker._graph_mapper.get_subvertices_from_vertex(
+    vertices = spinnaker._graph_mapper.get_machine_vertices(
         vertex)
-    subvertex = iter(subvertices).next()
-    return spinnaker._placements.get_placement_of_subvertex(subvertex)
+    vertex = iter(vertices).next()
+    return spinnaker._placements.get_placement_of_vertex(vertex)
 
 errors = list()
 all_spikes = list()
