@@ -2,7 +2,10 @@
 retina example that just feeds data from a retina to live output via an
 intermediate population
 """
-import spynnaker.pyNN as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import spynnaker_external_devices_plugin.pyNN as q
 import retina_lib as retina_lib
 

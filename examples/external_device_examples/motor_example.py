@@ -3,7 +3,10 @@ motor example that just feeds data to the motor pop which starts the motor
 going forward
 """
 
-import spynnaker.pyNN as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import spynnaker_external_devices_plugin.pyNN as q
 
 # set up the tools

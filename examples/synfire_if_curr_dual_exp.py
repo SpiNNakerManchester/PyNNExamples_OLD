@@ -1,4 +1,7 @@
-import pyNN.spiNNaker as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import numpy
 import matplotlib.pyplot as py_plot
 

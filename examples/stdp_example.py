@@ -29,7 +29,10 @@ Authors : Catherine Wacongne < catherine.waco@gmail.com >
 April 2013
 """
 import pylab
-import pyNN.spiNNaker as sim
+try:
+    import pyNN.spiNNaker as sim
+except Exception as e:
+    import spynnaker.pyNN as sim
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)

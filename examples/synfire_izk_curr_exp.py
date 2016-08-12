@@ -1,7 +1,10 @@
 """
 Synfirechain-like example
 """
-import pyNN.spiNNaker as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import pylab
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=32.0)
@@ -23,7 +26,7 @@ cell_params_izk = {'a': 0.02,
 populations = list()
 projections = list()
 
-weight_to_spike = 40
+weight_to_spike = 30
 delay = 1
 
 loopConnections = list()

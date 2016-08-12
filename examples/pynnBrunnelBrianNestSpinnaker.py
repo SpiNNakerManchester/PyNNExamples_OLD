@@ -1,5 +1,9 @@
 simulator_Name = 'spiNNaker'
-exec('import pyNN.%s as pynn' % simulator_Name)
+#exec('import pyNN.%s as pynn' % simulator_Name)
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 
 import pylab as plt
 import numpy as np
