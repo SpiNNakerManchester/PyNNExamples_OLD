@@ -74,6 +74,6 @@ p.Projection(retina_pop, population,
              p.FromListConnector(retina_lib.subSamplerConnector2D(
                  128, 32, 2.0, 1)))
 
-q.activate_live_output_for(population)
+# q.activate_live_output_for(population)
 p.run(1000)
 p.end()
