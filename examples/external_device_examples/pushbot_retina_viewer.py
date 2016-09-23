@@ -24,8 +24,6 @@ p.setup(timestep=1.0)
 # Pushbot Retina - Down Polarity
 retina_pop = p.Population(None, q.PushBotRetinaDevice, {
     "spinnaker_link_id": 0,
-    "virtual_chip_x": 5,
-    "virtual_chip_y": 0,
     "polarity": q.PushBotRetinaPolarity.Merged,
     "resolution": RESOLUTION})
 
@@ -49,7 +47,7 @@ image = plt.imshow(get_square_image_data_view(image_data),
 
 # Open socket to receive datagrams
 spike_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-spike_socket.bind(("0.0.0.0", 17893))
+spike_socket.bind(("0.0.0.0", 17895))
 spike_socket.setblocking(False)
 
 # Determine mask for coordinates
