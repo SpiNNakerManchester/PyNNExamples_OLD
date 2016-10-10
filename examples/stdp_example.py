@@ -163,9 +163,11 @@ stdp_model = sim.STDPMechanism(
                                                    A_plus=0.02, A_minus=0.02)
 )
 
+structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model)
+
 plastic_projection = sim.Projection(
-    pre_pop, post_pop, sim.FixedProbabilityConnector(p_connect=0.5),
-    synapse_dynamics=sim.SynapseDynamics(slow=stdp_model)
+    pre_pop, post_pop, sim.FixedNumberPreConnector(32),
+    synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp), label="plastic_projection"
 )
 
 # +-------------------------------------------------------------------+
