@@ -1,8 +1,7 @@
 """
 Synfirechain-like example
 """
-import pyNN.spiNNaker as p
-import numpy
+import spynnaker.pyNN as p
 import pylab
 from pyNN.random import RandomDistribution
 
