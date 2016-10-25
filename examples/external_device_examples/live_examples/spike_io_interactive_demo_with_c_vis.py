@@ -10,7 +10,6 @@ from spynnaker_external_devices_plugin.pyNN.connections\
 
 # plotter in python
 import pylab
-from multiprocessing import freeze_support
 import Tkinter as tk
 
 
@@ -24,10 +23,34 @@ class PyNNScript(object):
         # initial call to set up the front end (pynn requirement)
         Frontend.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 
+        use_c_visualiser = True
+        use_spike_injector = True
+
         # neurons per population and the length of runtime in ms for the
         # simulation, as well as the expected weight each spike will contain
         self.n_neurons = 100
-        run_time = 100000
+
+        # set up gui
+        p = None
+        if use_spike_injector:
+            from multiprocessing import Process
+            from multiprocessing import Event
+            ready = Event()
+            p = Process(target=GUI, args=[self.n_neurons, ready])
+            p.start()
+            ready.wait()
+
+        # different runtimes for demostration purposes
+        run_time = None
+        if not use_c_visualiser and not use_spike_injector:
+            run_time = 1000
+        elif use_c_visualiser and not use_spike_injector:
+            run_time = 10000
+        elif use_c_visualiser and use_spike_injector:
+            run_time = 100000
+        elif not use_c_visualiser and use_spike_injector:
+            run_time = 10000
+
         weight_to_spike = 2.0
 
         # neural parameters of the IF_curr model used to respond to injected
@@ -92,13 +115,42 @@ class PyNNScript(object):
             cell_params_lif, label='pop_backward')
 
         # Create injection populations
-        injector_forward = Frontend.Population(
-            self.n_neurons, ExternalDevices.SpikeInjector,
-            cell_params_spike_injector_with_key,
-            label='spike_injector_forward')
-        injector_backward = Frontend.Population(
-            self.n_neurons, ExternalDevices.SpikeInjector,
-            cell_params_spike_injector, label='spike_injector_backward')
+        injector_forward = None
+        injector_backward = None
+        if use_spike_injector:
+            injector_forward = Frontend.Population(
+                self.n_neurons, ExternalDevices.SpikeInjector,
+                cell_params_spike_injector_with_key,
+                label='spike_injector_forward')
+            injector_backward = Frontend.Population(
+                self.n_neurons, ExternalDevices.SpikeInjector,
+                cell_params_spike_injector, label='spike_injector_backward')
+        else:
+            spike_times = []
+            for _ in range(0, self.n_neurons):
+                spike_times.append([])
+            spike_times[0] = [0]
+            spike_times[20] = [(run_time / 100) * 20]
+            spike_times[40] = [(run_time / 100) * 40]
+            spike_times[60] = [(run_time / 100) * 60]
+            spike_times[80] = [(run_time / 100) * 80]
+            cell_params_forward = {'spike_times': spike_times}
+            spike_times_backwards = []
+            for _ in range(0, self.n_neurons):
+                spike_times_backwards.append([])
+            spike_times_backwards[0] = [(run_time / 100) * 80]
+            spike_times_backwards[20] = [(run_time / 100) * 60]
+            spike_times_backwards[40] = [(run_time / 100) * 40]
+            spike_times_backwards[60] = [(run_time / 100) * 20]
+            spike_times_backwards[80] = [0]
+            cell_params_backward = {'spike_times': spike_times_backwards}
+            injector_forward = Frontend.Population(
+                self.n_neurons, Frontend.SpikeSourceArray,
+                cell_params_forward,
+                label='spike_injector_forward')
+            injector_backward = Frontend.Population(
+                self.n_neurons, Frontend.SpikeSourceArray,
+                cell_params_backward, label='spike_injector_backward')
 
         # Create a connection from the injector into the populations
         Frontend.Projection(
@@ -137,10 +189,19 @@ class PyNNScript(object):
             pop_backward, database_notify_host="localhost",
             database_notify_port_num=19996)
 
-        # set up gui
-        from multiprocessing import Process
-        p = Process(target=GUI, args=[self.n_neurons])
-        p.start()
+        if not use_c_visualiser:
+            # if not using the c visualiser, then a new spynnaker live spikes
+            # connection is created to define that there are python code which
+            # receives the outputted spikes.
+            live_spikes_connection_receive = SpynnakerLiveSpikesConnection(
+                receive_labels=["pop_forward", "pop_backward"],
+                local_port=19999, send_labels=None)
+
+            # Set up callbacks to occur when spikes are received
+            live_spikes_connection_receive.add_receive_callback(
+                "pop_forward", receive_spikes)
+            live_spikes_connection_receive.add_receive_callback(
+                "pop_backward", receive_spikes)
         # Run the simulation on spiNNaker
         Frontend.run(run_time)
 
@@ -167,70 +228,67 @@ class PyNNScript(object):
         # Clear data structures on spiNNaker to leave the machine in a clean
         # state for future executions
         Frontend.end()
-        p.join()
+        if use_spike_injector:
+            p.join()
+
+
+# Create a receiver of live spikes
+def receive_spikes(label, time, neuron_ids):
+    for neuron_id in neuron_ids:
+        print "Received spike at time", time, "from", label, "-", neuron_id
 
 
 class GUI(object):
-    """
-    simple gui to demostrate live inejction of the spike io script.
+    """ Simple gui to demostrate live inejction of the spike io script.
     """
 
-    def __init__(self, n_neurons):
-        """
-        creates the gui
-        :return:
-        """
-        self._started = False
+    def __init__(self, n_neurons, ready):
+        self._n_neurons = n_neurons
+
         # Set up the live connection for sending and receiving spikes
-        self.live_spikes_connection = SpynnakerLiveSpikesConnection(
+        self._live_spikes_connection = SpynnakerLiveSpikesConnection(
             receive_labels=None, local_port=19996,
-            send_labels=["spike_injector_forward", "spike_injector_backward"])
+            send_labels=["spike_injector_forward",
+                         "spike_injector_backward"])
 
         # Set up callbacks to occur at the start of simulation
-        self.live_spikes_connection.add_start_callback(
-            "spike_injector_forward", self.send_input_forward)
-        root = tk.Tk()
-        root.title("Injecting Spikes GUI")
-        label = tk.Label(root, fg="dark green")
+        self._live_spikes_connection.add_start_callback(
+            "spike_injector_forward", self.start)
+
+        self._root = tk.Tk()
+        self._root.title("Injecting Spikes GUI")
+        label = tk.Label(self._root, fg="dark green")
         label.pack()
         neuron_id_value = tk.IntVar()
-        self.neuron_id = tk.Spinbox(
-            root, from_=0, to=n_neurons - 1, textvariable=neuron_id_value)
-        self.neuron_id.pack()
+        self._neuron_id = tk.Spinbox(
+            self._root, from_=0, to=self._n_neurons - 1,
+            textvariable=neuron_id_value)
+        self._neuron_id.pack()
         pop_label_value = tk.StringVar()
-        self.pop_label = tk.Spinbox(
-            root, textvariable=pop_label_value,
+        self._pop_label = tk.Spinbox(
+            self._root, textvariable=pop_label_value,
             values=("spike_injector_forward", "spike_injector_backward"))
-        self.pop_label.pack()
-        button = tk.Button(root, text='Inject', width=25,
-                           command=self.inject_spike)
-        button.pack()
-        root.mainloop()
+        self._pop_label.pack()
+        self._button = tk.Button(
+            self._root, text='Inject', width=25, command=self.inject_spike,
+            state="disabled")
+        self._button.pack()
 
-    # Create a sender of packets for the forward population
-    def send_input_forward(self, pop_label, _):
-        """
-        records that stuff has started on the spinnaker machine
-        :param pop_label: label
-        :param _: dont care
-        :return:
-        """
-        self._started = True
+        ready.set()
 
-    # add a gui with a button and scroll list
+        self._root.mainloop()
+
+    def start(self, pop_label, connection):
+        self._button["state"] = "normal"
+
     def inject_spike(self):
-        """
-        is set off when inject is pressed, takes the vlaues from the spin
-        boxes and fires a spike in.
-        :return:
-        """
-        print "injecting with neuron_id {} to pop {}".format(
-            self.neuron_id.get(), self.pop_label.get())
-        if self._started:
-            self.live_spikes_connection.send_spike(str(self.pop_label.get()),
-                                                   int(self.neuron_id.get()))
+        neuron_id = int(self._neuron_id.get())
+        label = str(self._pop_label.get())
+        print "injecting with neuron_id {} to pop {}".format(neuron_id, label)
+        self._live_spikes_connection.send_spike(label, neuron_id)
 
 # set up the initial script
 if __name__ == '__main__':
+    from multiprocessing import freeze_support
     freeze_support()
     script = PyNNScript()

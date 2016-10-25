@@ -15,13 +15,13 @@ except Exception as e:
 # ------------------------------------------------------------------
 time_between_pairs = 1000
 num_pairs = 60
-start_w = 0.5
+start_w = 0.005
 delta_t = [-100, -60, -40, -30, -20, -10, -1, 1, 10, 20, 30, 40, 60, 100]
 start_time = 200
 mad = True
 
 # Population parameters
-model = sim.IF_curr_exp
+model = sim.IF_cond_exp
 cell_params = {'cm': 0.25,  # nF
                'i_offset': 0.0,
                'tau_m': 10.0,
@@ -79,7 +79,7 @@ for t in delta_t:
                                {'spike_times': [post_times, ]})
 
     # Connections between spike sources and neuron populations
-    ee_connector = sim.OneToOneConnector(weights=2)
+    ee_connector = sim.OneToOneConnector(weights=0.035)
     sim.Projection(pre_stim, pre_pop, ee_connector, target='excitatory')
     sim.Projection(post_stim, post_pop, ee_connector, target='excitatory')
 
@@ -88,7 +88,7 @@ for t in delta_t:
         timing_dependence=sim.SpikePairRule(
             tau_plus=16.7, tau_minus=33.7, nearest=True),
         weight_dependence=sim.AdditiveWeightDependence(
-            w_min=0.0, w_max=1.0, A_plus=0.005, A_minus=0.005),
+            w_min=0.0, w_max=0.0175, A_plus=0.005, A_minus=0.005),
         mad=mad
     )
 

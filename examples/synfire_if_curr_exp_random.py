@@ -1,7 +1,10 @@
 """
 Synfirechain-like example
 """
-import spynnaker.pyNN as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import pylab
 from pyNN.random import RandomDistribution
 
@@ -29,7 +32,8 @@ delay = RandomDistribution("uniform", parameters=[1, max_delay])
 
 loopConnections = list()
 for i in range(0, nNeurons):
-    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, delay)
+    delay_value = delay.next()
+    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, delay_value)
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0, weight_to_spike, 1)]

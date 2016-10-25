@@ -54,7 +54,7 @@ cell_params_spike_injector = {
     # The port on which the spiNNaker machine should listen for packets.
     # Packets to be injected should be sent to this port on the spiNNaker
     # machine
-    'port': 12345
+    'port': 12345,
 }
 
 
@@ -75,7 +75,7 @@ cell_params_spike_injector_with_key = {
     # allow the keys to be routed around the spiNNaker machine.  This
     # assignment means that 32-bit keys must have the high-order 16-bit
     # set to 0x7; This will automatically be prepended to 16-bit keys.
-    'virtual_key': 0x70000
+    'virtual_key': 0x70000,
 }
 
 # create synfire populations (if cur exp)
@@ -117,19 +117,22 @@ pop_forward.record()
 pop_backward.record()
 
 # Activate the sending of live spikes
-if using_c_vis:
-    ExternalDevices.activate_live_output_for(
-        pop_forward, database_notify_host="localhost",
-        database_notify_port_num=19999)
-    ExternalDevices.activate_live_output_for(
-        pop_backward, database_notify_host="localhost",
-        database_notify_port_num=19999)
-else:
-    ExternalDevices.activate_live_output_for(pop_forward)
-    ExternalDevices.activate_live_output_for(pop_backward)
+ExternalDevices.activate_live_output_for(
+    pop_forward, database_notify_host="localhost",
+    database_notify_port_num=19996)
+ExternalDevices.activate_live_output_for(
+    pop_backward, database_notify_host="localhost",
+    database_notify_port_num=19996)
 
 # Create a condition to avoid overlapping prints
 print_condition = Condition()
+
+
+# Create an initialisation method
+def init_pop(label, n_neurons, run_time_ms, machine_timestep_ms):
+    print "{} has {} neurons".format(label, n_neurons)
+    print "Simulation will run for {}ms at {}ms timesteps".format(
+        run_time_ms, machine_timestep_ms)
 
 
 # Create a sender of packets for the forward population
@@ -160,31 +163,37 @@ def receive_spikes(label, time, neuron_ids):
         print "Received spike at time", time, "from", label, "-", neuron_id
         print_condition.release()
 
-# Set up the live connection for sending and receiving spikes
-if not using_c_vis:
-    live_spikes_connection = SpynnakerLiveSpikesConnection(
-        receive_labels=["pop_forward", "pop_backward"],
-        send_labels=["spike_injector_forward", "spike_injector_backward"])
+# Set up the live connection for sending spikes
+live_spikes_connection_send = SpynnakerLiveSpikesConnection(
+    receive_labels=None, local_port=19999,
+    send_labels=["spike_injector_forward", "spike_injector_backward"])
 
-    # Set up callbacks to occur at the start of simulation
-    live_spikes_connection.add_start_callback("spike_injector_forward",
-                                              send_input_forward)
-    live_spikes_connection.add_start_callback("spike_injector_backward",
-                                              send_input_backward)
+# Set up callbacks to occur at initialisation
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_forward", init_pop)
+live_spikes_connection_send.add_init_callback(
+    "spike_injector_backward", init_pop)
+
+# Set up callbacks to occur at the start of simulation
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_forward", send_input_forward)
+live_spikes_connection_send.add_start_callback(
+    "spike_injector_backward", send_input_backward)
+
+if not using_c_vis:
+
+    # if not using the c visualiser, then a new spynnaker live spikes
+    # connection is created to define that there is a python function which
+    # receives the spikes.
+    live_spikes_connection_receive = SpynnakerLiveSpikesConnection(
+        receive_labels=["pop_forward", "pop_backward"],
+        local_port=19996, send_labels=None)
 
     # Set up callbacks to occur when spikes are received
-    live_spikes_connection.add_receive_callback("pop_forward", receive_spikes)
-    live_spikes_connection.add_receive_callback("pop_backward", receive_spikes)
-else:
-    live_spikes_connection = SpynnakerLiveSpikesConnection(
-        receive_labels=None, local_port=19996,
-        send_labels=["spike_injector_forward", "spike_injector_backward"])
-
-    # Set up callbacks to occur at the start of simulation
-    live_spikes_connection.add_start_callback("spike_injector_forward",
-                                              send_input_forward)
-    live_spikes_connection.add_start_callback("spike_injector_backward",
-                                              send_input_backward)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_forward", receive_spikes)
+    live_spikes_connection_receive.add_receive_callback(
+        "pop_backward", receive_spikes)
 
 
 # Run the simulation on spiNNaker

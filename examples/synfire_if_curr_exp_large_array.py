@@ -1,7 +1,10 @@
 """
 Synfirechain-like example
 """
-import pyNN.spiNNaker as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
 import pylab
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
@@ -40,7 +43,8 @@ input_1 = [i for i in xrange(0, run_time, space_between_inputs)]
 input_2 = [i for i in xrange(second_spike_start, run_time,
                              space_between_inputs)]
 spikeArray = {'spike_times': [input_1, input_2],
-              'max_on_chip_memory_usage_for_spikes_in_bytes': 92}
+              'max_on_chip_memory_usage_for_spikes_in_bytes': 640,
+              'space_before_notification': 320}
 pop_1 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_1')
 pop_2 = p.Population(nNeurons, p.IF_curr_exp, cell_params_lif, label='pop_2')
 input_spikes = p.Population(2, p.SpikeSourceArray, spikeArray,
@@ -53,11 +57,13 @@ p.Projection(input_spikes, pop_2, p.FromListConnector(injectionConnection_2))
 
 pop_1.record()
 pop_2.record()
+input_spikes.record()
 
 p.run(run_time)
 
 spikes_1 = pop_1.getSpikes()
 spikes_2 = pop_2.getSpikes()
+input_spikes_data = input_spikes.getSpikes()
 
 pylab.figure()
 pylab.plot([i[1] for i in spikes_1], [i[0] for i in spikes_1], "b.")
