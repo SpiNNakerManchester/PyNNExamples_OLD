@@ -24,6 +24,7 @@ This example requires that the NeuroTools package is installed
 (http://neuralensemble.org/trac/NeuroTools)
 
 Authors : Catherine Wacongne < catherine.waco@gmail.com >
+
           Xavier Lagorce < Xavier.Lagorce@crans.org >
 
 April 2013
@@ -85,7 +86,7 @@ IAddPost = []
 
 # Neuron populations
 pre_pop = sim.Population(pop_size, model, cell_params)
-post_pop = sim.Population(pop_size, model, cell_params)
+post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL")
 
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
