@@ -50,7 +50,7 @@ populations[0].record_v()
 populations[0].record_gsyn()
 populations[0].record()
 
-p.run(5000)
+p.run(500)
 
 v = None
 gsyn = None
@@ -59,6 +59,7 @@ spikes = None
 v = populations[0].get_v(compatible_output=True)
 gsyn = populations[0].get_gsyn(compatible_output=True)
 spikes = populations[0].getSpikes(compatible_output=True)
+spike_count = populations[0].get_spike_counts()
 
 if spikes is not None:
     print spikes

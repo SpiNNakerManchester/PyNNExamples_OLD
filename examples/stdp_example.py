@@ -37,7 +37,7 @@ except Exception as e:
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
-sim.set_number_of_neurons_per_core("IF_curr_exp", 10)
+sim.set_number_of_neurons_per_core("IF_curr_exp", 50)
 
 # +-------------------------------------------------------------------+
 # | General Parameters                                                |
@@ -166,6 +166,7 @@ stdp_model = sim.STDPMechanism(
 )
 
 structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model)
+# structure_model_w_stdp = sim.StructuralMechanism()
 
 plastic_projection = sim.Projection(
     pre_pop, post_pop, sim.FixedNumberPreConnector(32),
