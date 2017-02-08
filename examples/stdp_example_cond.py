@@ -2,18 +2,18 @@
 Simple test for STDP :
 
    Reproduces a classical plasticity experiment of plasticity induction by
-pre/post synaptic pairing specifically :
+   pre/post synaptic pairing specifically :
 
- * At the begining of the simulation, "n_stim_test" external stimulations of
-   the "pre_pop" (presynaptic) population do not trigger activity in the
+ * At the begining of the simulation, "n_stim_test" external stimulations of\
+   the "pre_pop" (presynaptic) population do not trigger activity in the\
    "post_pop" (postsynaptic) population.
 
- * Then the presynaptic and postsynaptic populations are stimulated together
-   "n_stim_pairing" times by an external source so that the "post_pop"
+ * Then the presynaptic and postsynaptic populations are stimulated together\
+   "n_stim_pairing" times by an external source so that the "post_pop"\
    population spikes 10ms after the "pre_pop" population.
 
- * Ater that period, only the "pre_pop" population is externally stimulated
-   "n_stim_test" times, but now it should trigger activity in the "post_pop"
+ * Ater that period, only the "pre_pop" population is externally stimulated\
+   "n_stim_test" times, but now it should trigger activity in the "post_pop"\
    population (due to STDP learning)
 
 Run as :
@@ -23,8 +23,9 @@ Run as :
 This example requires that the NeuroTools package is installed
 (http://neuralensemble.org/trac/NeuroTools)
 
-Authors : Catherine Wacongne < catherine.waco@gmail.com >
-          Xavier Lagorce < Xavier.Lagorce@crans.org >
+Authors :
+    - Catherine Wacongne < catherine.waco@gmail.com >
+    - Xavier Lagorce < Xavier.Lagorce@crans.org >
 
 April 2013
 """
