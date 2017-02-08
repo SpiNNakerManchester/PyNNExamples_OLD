@@ -21,15 +21,15 @@ def poisson_generator(rate, rng, t_start=0.0, t_stop=1000.0, array=True,
     they spiked at t=0.0, though this spike is not included in the SpikeList.
 
     Inputs:
-        rate    - the rate of the discharge (in Hz)
-        t_start - the beginning of the SpikeTrain (in ms)
-        t_stop  - the end of the SpikeTrain (in ms)
-        array   - if True, a numpy array of sorted spikes is returned,
+        - rate    - the rate of the discharge (in Hz)
+        - t_start - the beginning of the SpikeTrain (in ms)
+        - t_stop  - the end of the SpikeTrain (in ms)
+        - array   - if True, a numpy array of sorted spikes is returned,\
                   rather than a SpikeTrain object.
 
     Examples:
-        >> gen.poisson_generator(50, 0, 1000)
-        >> gen.poisson_generator(20, 5000, 10000, array=True)
+        - gen.poisson_generator(50, 0, 1000)
+        - gen.poisson_generator(20, 5000, 10000, array=True)
 
     See also:
         inh_poisson_generator, inh_gamma_generator,
