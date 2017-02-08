@@ -1,4 +1,8 @@
-import pyNN.spiNNaker as p
+try:
+    import pyNN.spiNNaker as p
+except Exception as e:
+    import spynnaker.pyNN as p
+
 import math
 
 n_neurons_per_pop = 1
@@ -41,79 +45,80 @@ def get_placement(population):
     subvertex = iter(subvertices).next()
     return spinnaker._placements.get_placement_of_subvertex(subvertex)
 
-errors = list()
-all_spikes = list()
+if __name__ == "__main__":
+    errors = list()
+    all_spikes = list()
 
-for do_injector_first in [True, False]:
+    for do_injector_first in [True, False]:
 
-    # Set up for execution
-    p.setup(1.0)
+        # Set up for execution
+        p.setup(1.0)
 
-    machine = p.get_machine()
-    cores = sorted([
-        (chip.x, chip.y, processor.processor_id) for chip in machine.chips
-        for processor in chip.processors if not processor.is_monitor
-    ])
-    n_cores = len(cores)
-    n_pops = int(math.floor(n_cores / 2.0))
-    print "n_cores =", n_cores, "n_pops =", n_pops
+        machine = p.get_machine()
+        cores = sorted([
+            (chip.x, chip.y, processor.processor_id) for chip in machine.chips
+            for processor in chip.processors if not processor.is_monitor
+        ])
+        n_cores = len(cores)
+        n_pops = int(math.floor(n_cores / 2.0))
+        print "n_cores =", n_cores, "n_pops =", n_pops
 
-    spike_times = range(0, n_pops * spike_gap, spike_gap)
-    run_time = (n_pops + 1) * spike_gap + 1
+        spike_times = range(0, n_pops * spike_gap, spike_gap)
+        run_time = (n_pops + 1) * spike_gap + 1
 
-    injectors = list()
-    for i in range(n_pops):
-        injector = None
-        (x1, y1, p1) = cores[i * 2]
-        (x2, y2, p2) = cores[(i * 2) + 1]
-        if do_injector_first:
-            injector = create_injector(i, x1, y1, p1)
-        else:
-            injector = create_injector(i, x2, y2, p2)
-        injectors.append(injector)
-
-    populations = list()
-    for i in range(n_pops):
-        pop = None
-        (x1, y1, p1) = cores[i * 2]
-        (x2, y2, p2) = cores[(i * 2) + 1]
-        if do_injector_first:
-            pop = create_pop(i, x2, y2, p2)
-        else:
-            pop = create_pop(i, x1, y1, p1)
-        pop.record()
-        populations.append(pop)
-
-    for i in range(n_pops):
-        p.Projection(
-            injectors[i], populations[i],
-            p.AllToAllConnector(weights=(weight / n_neurons_per_pop)))
-
-    p.run(run_time)
-    for i in range(n_pops):
-        population = populations[i]
-        spikes = population.getSpikes()
-        if len(spikes) == 0:
-            placement = get_placement(population)
-            errors.append((placement.x, placement.y, placement.p,
-                           "Failed to spike"))
-        else:
-
-            expected_out_times = [spike_time + 1
-                                  for spike_time in spike_times]
-            out_times = [spike[1] for spike in spikes]
-            if len(out_times) != len(expected_out_times):
-                placement = get_placement(population)
-                errors.append(
-                    (placement.x, placement.y, placement.p,
-                     "Spiked at {} instead of {}".format(
-                         out_times, expected_out_times)))
+        injectors = list()
+        for i in range(n_pops):
+            injector = None
+            (x1, y1, p1) = cores[i * 2]
+            (x2, y2, p2) = cores[(i * 2) + 1]
+            if do_injector_first:
+                injector = create_injector(i, x1, y1, p1)
             else:
-                all_spikes.append((population.label, spikes))
-    p.end()
+                injector = create_injector(i, x2, y2, p2)
+            injectors.append(injector)
 
-if len(errors) == 0:
-    print "No errors"
-else:
-    for (x, y, p, error) in sorted(errors, key=lambda e: (e[0], e[1], e[2])):
-        print "Error at core {}, {}, {}: {}".format(x, y, p, error)
+        populations = list()
+        for i in range(n_pops):
+            pop = None
+            (x1, y1, p1) = cores[i * 2]
+            (x2, y2, p2) = cores[(i * 2) + 1]
+            if do_injector_first:
+                pop = create_pop(i, x2, y2, p2)
+            else:
+                pop = create_pop(i, x1, y1, p1)
+            pop.record()
+            populations.append(pop)
+
+        for i in range(n_pops):
+            p.Projection(
+                injectors[i], populations[i],
+                p.AllToAllConnector(weights=(weight / n_neurons_per_pop)))
+
+        p.run(run_time)
+        for i in range(n_pops):
+            population = populations[i]
+            spikes = population.getSpikes()
+            if len(spikes) == 0:
+                placement = get_placement(population)
+                errors.append((placement.x, placement.y, placement.p,
+                               "Failed to spike"))
+            else:
+
+                expected_out_times = [spike_time + 1
+                                      for spike_time in spike_times]
+                out_times = [spike[1] for spike in spikes]
+                if len(out_times) != len(expected_out_times):
+                    placement = get_placement(population)
+                    errors.append(
+                        (placement.x, placement.y, placement.p,
+                         "Spiked at {} instead of {}".format(
+                             out_times, expected_out_times)))
+                else:
+                    all_spikes.append((population.label, spikes))
+        p.end()
+
+    if len(errors) == 0:
+        print "No errors"
+    else:
+        for (x, y, p, error) in sorted(errors, key=lambda e: (e[0], e[1], e[2])):
+            print "Error at core {}, {}, {}: {}".format(x, y, p, error)
