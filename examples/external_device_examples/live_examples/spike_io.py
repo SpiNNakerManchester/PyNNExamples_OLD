@@ -156,6 +156,7 @@ def send_input_backward(label, sender):
         sender.send_spike(label, real_id)
 
 
+
 # Create a receiver of live spikes
 def receive_spikes(label, time, neuron_ids):
     for neuron_id in neuron_ids:
