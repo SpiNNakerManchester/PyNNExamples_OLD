@@ -1,5 +1,5 @@
 # Standard PyNN imports
-import pyNN.spiNNaker as p
+import spynnaker.pyNN as p
 import pylab
 
 # Extra imports for external communication
