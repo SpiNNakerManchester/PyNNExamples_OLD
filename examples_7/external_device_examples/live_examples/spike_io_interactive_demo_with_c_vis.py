@@ -1,16 +1,11 @@
 # imports of both spynnaker and external device plugin.
-import spynnaker.pyNN as Frontend
-import spynnaker_external_devices_plugin.pyNN as ExternalDevices
+import Tkinter as tk
+import pylab
+import spynnaker7.pyNN as Frontend
 
-#######################
-# import to allow prefix type for the prefix eieio protocol
-######################
+import spynnaker_external_devices_plugin.pyNN as ExternalDevices
 from spynnaker_external_devices_plugin.pyNN.connections\
     .spynnaker_live_spikes_connection import SpynnakerLiveSpikesConnection
-
-# plotter in python
-import pylab
-import Tkinter as tk
 
 
 class PyNNScript(object):

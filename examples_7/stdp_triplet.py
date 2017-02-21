@@ -1,10 +1,14 @@
-
-import math, numpy, pylab, random, sys
+import math
+import numpy
 import pylab
+import pylab
+import random
+import sys
+
 try:
     import pyNN.spiNNaker as sim
 except Exception as e:
-    import spynnaker.pyNN as sim
+    import spynnaker7.pyNN as sim
 
 #-------------------------------------------------------------------
 # This example uses the sPyNNaker implementation of the triplet rule

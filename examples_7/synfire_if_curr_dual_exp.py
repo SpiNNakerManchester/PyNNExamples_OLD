@@ -1,9 +1,9 @@
 try:
     import pyNN.spiNNaker as p
 except Exception as e:
-    import spynnaker.pyNN as p
-import numpy
+    import spynnaker7.pyNN as p
 import matplotlib.pyplot as py_plot
+import numpy
 
 p.setup(timestep=1.0, min_delay=1.0, max_delay=8.0)
 

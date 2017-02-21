@@ -18,7 +18,7 @@ simulator_name = 'spiNNaker'
 benchmark = 'CUBA'
 
 #exec("from pyNN.%s import *" % simulator_name)
-from spynnaker.pyNN import *
+from spynnaker7.pyNN import *
 from pyNN.random import NumpyRNG, RandomDistribution
 from pyNN.utility import Timer
 

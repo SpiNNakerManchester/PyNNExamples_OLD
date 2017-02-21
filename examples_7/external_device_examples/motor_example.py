@@ -6,7 +6,7 @@ going forward
 try:
     import pyNN.spiNNaker as p
 except Exception as e:
-    import spynnaker.pyNN as p
+    import spynnaker7.pyNN as p
 import spynnaker_external_devices_plugin.pyNN as q
 
 # set up the tools

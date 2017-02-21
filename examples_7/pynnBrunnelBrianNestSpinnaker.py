@@ -1,12 +1,10 @@
 simulator_Name = 'spiNNaker'
 #exec('import pyNN.%s as pynn' % simulator_Name)
-try:
-    import pyNN.spiNNaker as pynn
-except Exception as e:
-    import spynnaker.pyNN as pynn
+import spynnaker7.pyNN as pynn
 
-import pylab as plt
 import numpy as np
+import pylab as plt
+
 import pynnBrunnelPlot as pblt
 from pyNN.random import NumpyRNG, RandomDistribution
 
