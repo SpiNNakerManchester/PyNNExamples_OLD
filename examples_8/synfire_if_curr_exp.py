@@ -27,7 +27,7 @@ delay = 17
 
 loopConnections = list()
 for i in range(0, nNeurons):
-    singleConnection = (i, ((i + 1) % nNeurons))
+    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, delay)
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0)]
