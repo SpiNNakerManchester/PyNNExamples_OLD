@@ -21,9 +21,9 @@ if __name__ == "__main__":
     projections = list()
 
 
-    input_population = p.Population(6, p.SpikeSourcePoisson, {'rate': 10})
-    control_population = p.Population(6, p.IF_curr_exp, {})
-    motor_device = p.Population(6, q.MunichMotorDevice, {"spinnaker_link_id": 0})
+    input_population = p.Population(6, p.SpikeSourcePoisson, {'rate': 10}, "poisson")
+    control_population = p.Population(6, p.IF_curr_exp, {}, "if_curr")
+    motor_device = p.Population(6, q.MunichMotorDevice, {"spinnaker_link_id": 0}, "motor")
 
     p.Projection(
         input_population, control_population, p.OneToOneConnector(weights=5.0))
