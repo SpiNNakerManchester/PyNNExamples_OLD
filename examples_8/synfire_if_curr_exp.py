@@ -52,10 +52,12 @@ v = None
 gsyn = None
 spikes = None
 
-v = populations[0].get('v', compatible_output=True)
-gsyn_exc = populations[0].get('gsyn_exc', compatible_output=True)
-gsyn_inh = populations[0].get('gsyn_inh', compatible_output=True)
-spikes = populations[0].get('spikes', compatible_output=True)
+v = populations[0].get_data('v')
+gsyn_exc = populations[0].get_data('gsyn_exc')
+gsyn_inh = populations[0].get_data('gsyn_inh')
+spikes = populations[0].get_data('spikes')
+
+
 
 if spikes is not None:
     print spikes
