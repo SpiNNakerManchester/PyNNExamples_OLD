@@ -169,7 +169,8 @@ structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model)
 # structure_model_w_stdp = sim.StructuralMechanism()
 
 plastic_projection = sim.Projection(
-    pre_pop, post_pop, sim.FixedNumberPreConnector(32),
+    # pre_pop, post_pop, sim.FixedNumberPostConnector(32),
+    pre_pop, post_pop, sim.FixedNumberPreConnector(32), # TODO what about starting from 0?
     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp), label="plastic_projection"
 )
 
