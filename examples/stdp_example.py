@@ -30,6 +30,11 @@ Authors : Catherine Wacongne < catherine.waco@gmail.com >
 April 2013
 """
 import pylab
+
+from pacman.model.constraints.partitioner_constraints.partitioner_maximum_size_constraint import \
+    PartitionerMaximumSizeConstraint
+from pacman.model.constraints.placer_constraints.placer_chip_and_core_constraint import PlacerChipAndCoreConstraint
+
 try:
     import pyNN.spiNNaker as sim
 except Exception as e:
@@ -88,6 +93,8 @@ IAddPost = []
 pre_pop = sim.Population(pop_size, model, cell_params)
 post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL")
 
+post_pop.set_constraint(PlacerChipAndCoreConstraint(0, 1))
+post_pop.set_constraint(PartitionerMaximumSizeConstraint(10))
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
 for i in range(n_stim_test):
@@ -165,12 +172,12 @@ stdp_model = sim.STDPMechanism(
                                                    A_plus=0.02, A_minus=0.02)
 )
 
-structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model)
+structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=.05)
 # structure_model_w_stdp = sim.StructuralMechanism()
 
 plastic_projection = sim.Projection(
     # pre_pop, post_pop, sim.FixedNumberPostConnector(32),
-    pre_pop, post_pop, sim.FixedNumberPreConnector(32), # TODO what about starting from 0?
+    pre_pop, post_pop, sim.FixedNumberPreConnector(1), # TODO what about starting from 0?
     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp), label="plastic_projection"
 )
 
