@@ -2,8 +2,9 @@
 Synfirechain-like example
 """
 import spynnaker8 as p
-import pylab
+from pyNN.utility.plotting import Figure, Panel
 
+runtime = 5000
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 nNeurons = 200  # number of neurons in each population
 p.set_number_of_neurons_per_core(p.IF_curr_exp, nNeurons / 2)
@@ -27,7 +28,7 @@ delay = 17
 
 loopConnections = list()
 for i in range(0, nNeurons):
-    singleConnection = (i, ((i + 1) % nNeurons), weight_to_spike, delay)
+    singleConnection = ((i, (i + 1) % nNeurons, weight_to_spike, delay))
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0)]
@@ -46,63 +47,32 @@ projections.append(p.Projection(
 
 populations[0].record(['v', 'gsyn_exc', 'gsyn_inh', 'spikes'])
 
-p.run(5000)
+p.run(runtime)
 
-v = None
-gsyn = None
-spikes = None
-
+# get data (could be done as one, but can be done bit by bit as well)
 v = populations[0].get_data('v')
 gsyn_exc = populations[0].get_data('gsyn_exc')
 gsyn_inh = populations[0].get_data('gsyn_inh')
 spikes = populations[0].get_data('spikes')
 
-
-
-if spikes is not None:
-    print spikes
-    pylab.figure()
-    pylab.plot([i[1] for i in spikes], [i[0] for i in spikes], ".")
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('spikes')
-    pylab.title('spikes')
-    pylab.show()
-else:
-    print "No spikes received"
-
-# Make some graphs
-
-if v is not None:
-    ticks = len(v) / nNeurons
-    pylab.figure()
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('v')
-    pylab.title('v')
-    for pos in range(0, nNeurons, 20):
-        v_for_neuron = v[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[2] for i in v_for_neuron])
-    pylab.show()
-
-if gsyn_exc is not None:
-    ticks = len(gsyn_exc) / nNeurons
-    pylab.figure()
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('gsyn exc')
-    pylab.title('gsyn exc')
-    for pos in range(0, nNeurons, 20):
-        gsyn_for_neuron = gsyn_exc[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[2] for i in gsyn_for_neuron])
-    pylab.show()
-
-if gsyn_inh is not None:
-    ticks = len(gsyn_inh) / nNeurons
-    pylab.figure()
-    pylab.xlabel('Time/ms')
-    pylab.ylabel('gsyn inh')
-    pylab.title('gsyn inh')
-    for pos in range(0, nNeurons, 20):
-        gsyn_for_neuron = gsyn_inh[pos * ticks: (pos + 1) * ticks]
-        pylab.plot([i[2] for i in gsyn_for_neuron])
-    pylab.show()
+figure_filename = "results.png"
+Figure(
+    # raster plot of the presynaptic neuron spike times
+    Panel(spikes.segments[0].spiketrains,
+          yticks=True, markersize=0.2, xlim=(0, runtime)),
+    # membrane potential of the postsynaptic neuron
+    Panel(v.segments[0].filter(name='v')[0],
+          ylabel="Membrane potential (mV)",
+          data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
+    Panel(gsyn_exc.segments[0].filter(name='gsyn_exc')[0],
+          ylabel="gsyn excitatory (mV)",
+          data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
+    Panel(gsyn_inh.segments[0].filter(name='gsyn_inh')[0],
+          ylabel="gsyn inhibitory (mV)",
+          data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
+    title="Simple synfire chain example",
+    annotations="Simulated with {}".format(p.name())
+).save(figure_filename)
+print(figure_filename)
 
 p.end()
