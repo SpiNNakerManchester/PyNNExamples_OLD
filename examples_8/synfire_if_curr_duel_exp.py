@@ -35,7 +35,8 @@ for i in range(0, nNeurons):
 injectionConnection = [(0, 0)]
 spikeArray = {'spike_times': [[0]]}
 populations.append(
-    p.Population(nNeurons, p.IF_curr_exp(**cell_params_lif), label='pop_1'))
+    p.Population(nNeurons, p.IF_curr_duel_exp(**cell_params_lif),
+                 label='pop_1'))
 populations.append(
     p.Population(1, p.SpikeSourceArray(**spikeArray), label='inputSpikes_1'))
 
@@ -51,28 +52,27 @@ populations[0].record(['v', 'gsyn_exc', 'gsyn_inh', 'spikes'])
 p.run(runtime)
 
 # get data (could be done as one, but can be done bit by bit as well)
-v = populations[0].get_data('v')
-gsyn_exc = populations[0].get_data('gsyn_exc')
-gsyn_inh = populations[0].get_data('gsyn_inh')
-spikes = populations[0].get_data('spikes')
+data = populations[0].get_data(['v', 'gsyn_exc', 'spikes', 'gsyn_inh'])
 
+figure_filename = "results.png"
 Figure(
     # raster plot of the presynaptic neuron spike times
-    Panel(spikes.segments[0].spiketrains,
+    Panel(data.segments[0].spiketrains,
           yticks=True, markersize=0.2, xlim=(0, runtime)),
     # membrane potential of the postsynaptic neuron
-    Panel(v.segments[0].filter(name='v')[0],
+    Panel(data.segments[0].filter(name='v')[0],
           ylabel="Membrane potential (mV)",
           data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
-    Panel(gsyn_exc.segments[0].filter(name='gsyn_exc')[0],
+    Panel(data.segments[0].filter(name='gsyn_exc')[0],
           ylabel="gsyn excitatory (mV)",
           data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
-    Panel(gsyn_inh.segments[0].filter(name='gsyn_inh')[0],
+    Panel(data.segments[0].filter(name='gsyn_inh')[0],
           ylabel="gsyn inhibitory (mV)",
           data_labels=[populations[0].label], yticks=True, xlim=(0, runtime)),
     title="Simple synfire chain example",
     annotations="Simulated with {}".format(p.name())
 )
 plt.show()
+print(figure_filename)
 
 p.end()
