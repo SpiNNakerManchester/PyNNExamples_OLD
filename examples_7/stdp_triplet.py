@@ -29,7 +29,7 @@ delta_t = [-10, 10]
 
 def generate_fixed_frequency_test_data(frequency, first_spike_time, num_spikes):
     # Calculate interspike delays in ms
-    interspike_delay = int(1000.0 / float(frequency));
+    interspike_delay = int(1000.0 / float(frequency))
 
     # Generate spikes
     return [first_spike_time + (s * interspike_delay) for s in range(num_spikes)]
