@@ -5,7 +5,7 @@ import spynnaker8 as p
 from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plt
 
-runtime = 5000
+runtime = 500
 p.setup(timestep=1.0, min_delay=1.0, max_delay=144.0)
 nNeurons = 200  # number of neurons in each population
 p.set_number_of_neurons_per_core(p.IF_curr_exp, nNeurons / 2)
@@ -33,7 +33,7 @@ for i in range(0, nNeurons):
     loopConnections.append(singleConnection)
 
 injectionConnection = [(0, 0)]
-spikeArray = {'spike_times': [[0]]}
+spikeArray = {'spike_times': [[50]]}
 populations.append(
     p.Population(nNeurons, p.Izhikevich(**cell_params_izk), label='pop_1'))
 populations.append(
