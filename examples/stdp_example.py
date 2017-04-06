@@ -42,7 +42,7 @@ except Exception as e:
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
-sim.set_number_of_neurons_per_core("IF_curr_exp", 50)
+sim.set_number_of_neurons_per_core("IF_curr_exp", 150)
 
 # +-------------------------------------------------------------------+
 # | General Parameters                                                |
@@ -71,7 +71,7 @@ n_stim_test = 5
 n_stim_pairing = 20
 dur_stim = 20
 
-pop_size = 40
+pop_size = 100
 
 ISI = 90.
 start_test_pre_pairing = 200.
@@ -94,7 +94,7 @@ pre_pop = sim.Population(pop_size, model, cell_params)
 post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL")
 
 post_pop.set_constraint(PlacerChipAndCoreConstraint(0, 1))
-post_pop.set_constraint(PartitionerMaximumSizeConstraint(10))
+# post_pop.set_constraint(PartitionerMaximumSizeConstraint(50))
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
 for i in range(n_stim_test):
@@ -172,14 +172,23 @@ stdp_model = sim.STDPMechanism(
                                                    A_plus=0.02, A_minus=0.02)
 )
 
-structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=.05)
-# structure_model_w_stdp = sim.StructuralMechanism()
+structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0., s_max=32)
+# structure_model_w_stdp = sim.StructuralMechanism(weight=.05)
 
 plastic_projection = sim.Projection(
-    # pre_pop, post_pop, sim.FixedNumberPostConnector(32),
-    pre_pop, post_pop, sim.FixedNumberPreConnector(1), # TODO what about starting from 0?
-    synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp), label="plastic_projection"
+    # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
+    pre_pop, post_pop, sim.FixedNumberPostConnector(32), # TODO what about starting from 0?
+    synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
+    label="plastic_projection"
 )
+
+# Recurrent connection (checking if this is working)
+# sim.Projection(
+#     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
+#     post_pop, post_pop, sim.FixedNumberPreConnector(32), # TODO what about starting from 0?
+#     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
+#     label="plastic_projection"
+# )
 
 # +-------------------------------------------------------------------+
 # | Simulation and results                                            |
