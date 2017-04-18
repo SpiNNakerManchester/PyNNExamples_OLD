@@ -24,25 +24,18 @@ This example requires that the NeuroTools package is installed
 (http://neuralensemble.org/trac/NeuroTools)
 
 Authors : Catherine Wacongne < catherine.waco@gmail.com >
-
           Xavier Lagorce < Xavier.Lagorce@crans.org >
 
 April 2013
 """
 import pylab
-
-from pacman.model.constraints.partitioner_constraints.partitioner_maximum_size_constraint import \
-    PartitionerMaximumSizeConstraint
-from pacman.model.constraints.placer_constraints.placer_chip_and_core_constraint import PlacerChipAndCoreConstraint
-
 try:
     import pyNN.spiNNaker as sim
 except Exception as e:
-    import spynnaker.pyNN as sim
+    import spynnaker7.pyNN as sim
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
-sim.set_number_of_neurons_per_core("IF_curr_exp", 150)
 
 # +-------------------------------------------------------------------+
 # | General Parameters                                                |
@@ -71,7 +64,7 @@ n_stim_test = 5
 n_stim_pairing = 20
 dur_stim = 20
 
-pop_size = 100
+pop_size = 40
 
 ISI = 90.
 start_test_pre_pairing = 200.
@@ -91,10 +84,8 @@ IAddPost = []
 
 # Neuron populations
 pre_pop = sim.Population(pop_size, model, cell_params)
-post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL")
+post_pop = sim.Population(pop_size, model, cell_params)
 
-post_pop.set_constraint(PlacerChipAndCoreConstraint(0, 1))
-# post_pop.set_constraint(PartitionerMaximumSizeConstraint(50))
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
 for i in range(n_stim_test):
@@ -166,29 +157,15 @@ for i in range(len(IAddPost)):
 
 # Plastic Connections between pre_pop and post_pop
 stdp_model = sim.STDPMechanism(
-    timing_dependence=sim.SpikePairRule(tau_plus=20., tau_minus=20.0,
-                                        nearest=True),
+    timing_dependence=sim.SpikePairRule(tau_plus=20., tau_minus=20.0),
     weight_dependence=sim.AdditiveWeightDependence(w_min=0, w_max=0.9,
                                                    A_plus=0.02, A_minus=0.02)
 )
 
-structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0., s_max=32)
-# structure_model_w_stdp = sim.StructuralMechanism(weight=.05)
-
 plastic_projection = sim.Projection(
-    # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
-    pre_pop, post_pop, sim.FixedNumberPostConnector(32), # TODO what about starting from 0?
-    synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
-    label="plastic_projection"
+    pre_pop, post_pop, sim.FixedProbabilityConnector(p_connect=0.5),
+    synapse_dynamics=sim.SynapseDynamics(slow=stdp_model)
 )
-
-# Recurrent connection (checking if this is working)
-# sim.Projection(
-#     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
-#     post_pop, post_pop, sim.FixedNumberPreConnector(32), # TODO what about starting from 0?
-#     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
-#     label="plastic_projection"
-# )
 
 # +-------------------------------------------------------------------+
 # | Simulation and results                                            |
