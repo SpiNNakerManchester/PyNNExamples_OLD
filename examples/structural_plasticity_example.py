@@ -42,7 +42,6 @@ except Exception as e:
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
-sim.set_number_of_neurons_per_core("IF_curr_exp", 150)
 
 # +-------------------------------------------------------------------+
 # | General Parameters                                                |
@@ -71,7 +70,7 @@ n_stim_test = 5
 n_stim_pairing = 20
 dur_stim = 20
 
-pop_size = 100
+pop_size = 40
 
 ISI = 90.
 start_test_pre_pairing = 200.
@@ -91,10 +90,8 @@ IAddPost = []
 
 # Neuron populations
 pre_pop = sim.Population(pop_size, model, cell_params)
-post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL")
+post_pop = sim.Population(pop_size, model, cell_params)
 
-post_pop.set_constraint(PlacerChipAndCoreConstraint(0, 1))
-# post_pop.set_constraint(PartitionerMaximumSizeConstraint(50))
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
 for i in range(n_stim_test):

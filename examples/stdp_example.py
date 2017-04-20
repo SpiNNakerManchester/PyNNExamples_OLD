@@ -32,7 +32,7 @@ import pylab
 try:
     import pyNN.spiNNaker as sim
 except Exception as e:
-    import spynnaker7.pyNN as sim
+    import spynnaker.pyNN as sim
 
 # SpiNNaker setup
 sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
