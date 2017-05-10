@@ -20,6 +20,15 @@ stim_rate = 200
 duration = 12000
 plastic_weights = 0.15
 
+# Times of rewards and punishments
+rewards = [x for x in range(2000, 2010)] + \
+          [x for x in range(3000, 3020)] + \
+          [x for x in range(4000, 4100)]
+punishments = [x for x in range(5000, 5020)] + \
+              [x for x in range(7000, 7030)] + \
+              [x for x in range(8000, 8020)] + \
+              [x for x in range(9000, 9030)]
+
 cell_params = {'cm': 0.25,
                'i_offset': 0.0,
                'tau_m': 20.0,
@@ -33,17 +42,11 @@ cell_params = {'cm': 0.25,
 
 sim.setup(timestep=timestep)
 
-
 # Create a population of dopaminergic neurons for reward and punishment
 reward_pop = sim.Population(1, sim.SpikeSourceArray,
-    {'spike_times' : [x for x in range(2000, 2010)]
-                     + [x for x in range(3000, 3020)]
-                     + [x for x in range(4000, 4100)]}, label='reward')
+    {'spike_times' : rewards}, label='reward')
 punishment_pop = sim.Population(1, sim.SpikeSourceArray,
-    {'spike_times' : [x for x in range(5000, 5020)]
-                     + [x for x in range(7000, 7030)]
-                     + [x for x in range(8000, 8020)]
-                     + [x for x in range(9000, 9030)]}, label='punishment')
+    {'spike_times' : punishments}, label='punishment')
 
 pre_pops = []
 stimulation = []
@@ -109,6 +112,8 @@ for i in range(10):
         post_spikes.append([i+1, x[1]])
 
 plot_spikes(post_spikes, "post-synaptic neuron activity")
+pylab.plot(rewards, [0.5 for x in rewards], 'g^')
+pylab.plot(punishments, [0.5 for x in punishments], 'r^')
 pylab.show()
 
 print("Weights(Initial %s)" % plastic_weights)
