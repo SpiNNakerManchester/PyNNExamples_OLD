@@ -1,5 +1,0 @@
-PLEASE NOTE: you need to install sPyNNakerExternalDevicesPlugin for these
-examples to work.
-
-installation is done by the command:
-    pip install sPyNNakerExternalDevicesPlugin
