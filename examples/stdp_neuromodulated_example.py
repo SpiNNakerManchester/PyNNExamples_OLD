@@ -1,12 +1,18 @@
 """
 Simple test for neuromodulated-STDP
 
-We take 10 populations of 5 stimuli neurons and connect each
+We take 10 populations of 5 stimuli neurons and connect to each
 10 post-synaptic neurons. The spiking of stimuli causes some
 spikes in post-synaptic neurons initially.
 
-We then inject rewards or punishments from dopaminergic neurons
-periodically to reinforce or silent the synapses that are active.
+We then inject reward signals from dopaminergic neurons
+periodically to reinforce synapses that are active. This
+is followed by increased weights of some synapses and thus
+increased response to the stimuli.
+
+We then proceed to inject punishment signals from dopaminergic
+neurons which causes an inverse effect to reduce response of
+post-synaptic neurons to the same stimuli.
 
 """
 
@@ -77,7 +83,7 @@ synapse_dynamics = sim.SynapseDynamics(slow=sim.STDPMechanism(
     mad=True,
     neuromodulation=True))
 
-# Create a plastic connections betweeb stimulation populations and observed
+# Create plastic connections between stimulation populations and observed
 # neurons
 for i in range(10):
     plastic_projections.append(sim.Projection(stimulation[i], post_pops[i],
