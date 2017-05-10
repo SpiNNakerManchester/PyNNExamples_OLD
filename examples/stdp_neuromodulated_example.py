@@ -112,7 +112,7 @@ for i in range(10):
         post_spikes.append([i+1, x[1]])
 
 plot_spikes(post_spikes, "post-synaptic neuron activity")
-pylab.plot(rewards, [0.5 for x in rewards], 'g^')
+pylab.plot(rewards, [0.5 for x in rewards], 'y^')
 pylab.plot(punishments, [0.5 for x in punishments], 'r^')
 pylab.show()
 
