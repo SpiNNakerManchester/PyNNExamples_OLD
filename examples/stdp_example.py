@@ -28,6 +28,7 @@ Authors : Catherine Wacongne < catherine.waco@gmail.com >
 
 April 2013
 """
+import numpy as np
 import pylab
 try:
     import pyNN.spiNNaker as sim
@@ -84,7 +85,7 @@ IAddPost = []
 
 # Neuron populations
 pre_pop = sim.Population(pop_size, model, cell_params)
-post_pop = sim.Population(pop_size, model, cell_params)
+post_pop = sim.Population(pop_size, model, cell_params, label="STDP_POP")
 
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
@@ -163,7 +164,8 @@ stdp_model = sim.STDPMechanism(
 )
 
 plastic_projection = sim.Projection(
-    pre_pop, post_pop, sim.FixedProbabilityConnector(p_connect=0.5),
+    # pre_pop, post_pop, sim.FixedProbabilityConnector(p_connect=0.5),
+    pre_pop, post_pop, sim.FixedNumberPreConnector(20),
     synapse_dynamics=sim.SynapseDynamics(slow=stdp_model)
 )
 
@@ -199,6 +201,8 @@ def plot_spikes(spikes, title):
 
 pre_spikes = pre_pop.getSpikes(compatible_output=True)
 post_spikes = post_pop.getSpikes(compatible_output=True)
+
+np.savez("stdp_results", pre_spike=pre_spikes, post_spikes=post_spikes)
 
 plot_spikes(pre_spikes, "pre-synaptic")
 plot_spikes(post_spikes, "post-synaptic")

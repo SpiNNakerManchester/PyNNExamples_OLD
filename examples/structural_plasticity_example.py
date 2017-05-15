@@ -29,6 +29,7 @@ Authors : Catherine Wacongne < catherine.waco@gmail.com >
 
 April 2013
 """
+import numpy as np
 import pylab
 
 from pacman.model.constraints.partitioner_constraints.partitioner_maximum_size_constraint import \
@@ -61,7 +62,6 @@ cell_params = {'cm': 0.25,
                'v_thresh': -50.0
                }
 
-
 # Other simulation parameters
 e_rate = 80
 in_rate = 300
@@ -90,7 +90,7 @@ IAddPost = []
 
 # Neuron populations
 pre_pop = sim.Population(pop_size, model, cell_params)
-post_pop = sim.Population(pop_size, model, cell_params)
+post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL_POP")
 
 # Test of the effect of activity of the pre_pop population on the post_pop
 # population prior to the "pairing" protocol : only pre_pop is stimulated
@@ -169,12 +169,12 @@ stdp_model = sim.STDPMechanism(
                                                    A_plus=0.02, A_minus=0.02)
 )
 
-structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0., s_max=32)
+structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0.02, s_max=32)
 # structure_model_w_stdp = sim.StructuralMechanism(weight=.05)
 
 plastic_projection = sim.Projection(
     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
-    pre_pop, post_pop, sim.FixedNumberPostConnector(32), # TODO what about starting from 0?
+    pre_pop, post_pop, sim.FixedNumberPostConnector(1),  # TODO what about starting from 0?
     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
     label="plastic_projection"
 )
@@ -217,8 +217,11 @@ def plot_spikes(spikes, title):
     else:
         print "No spikes received"
 
+
 pre_spikes = pre_pop.getSpikes(compatible_output=True)
 post_spikes = post_pop.getSpikes(compatible_output=True)
+
+np.savez("structural_results_stdp", pre_spike=pre_spikes, post_spikes=post_spikes)
 
 plot_spikes(pre_spikes, "pre-synaptic")
 plot_spikes(post_spikes, "post-synaptic")
