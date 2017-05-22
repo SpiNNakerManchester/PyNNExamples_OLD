@@ -50,7 +50,7 @@ sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
 
 # Population parameters
 model = sim.IF_curr_exp
-
+sim.set_number_of_neurons_per_core("IF_curr_exp", 20)
 cell_params = {'cm': 0.25,
                'i_offset': 0.0,
                'tau_m': 20.0,
@@ -89,7 +89,7 @@ IAddPost = []
 # +-------------------------------------------------------------------+
 
 # Neuron populations
-pre_pop = sim.Population(pop_size, model, cell_params)
+pre_pop = sim.Population(pop_size, model, cell_params, label="PRE_SYN_POP")
 post_pop = sim.Population(pop_size, model, cell_params, label="STRUCTURAL_POP")
 
 # Test of the effect of activity of the pre_pop population on the post_pop
@@ -174,10 +174,18 @@ structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0
 
 plastic_projection = sim.Projection(
     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
-    pre_pop, post_pop, sim.FixedNumberPostConnector(1),  # TODO what about starting from 0?
+    pre_pop, post_pop, sim.OneToOneConnector(0),  # TODO what about starting from 0?
     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
     label="plastic_projection"
 )
+
+
+# plastic_projection2 = sim.Projection(
+#     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
+#     post_pop, post_pop, sim.FixedNumberPostConnector(1),  # TODO what about starting from 0?
+#     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
+#     label="plastic_projection"
+# )
 
 # Recurrent connection (checking if this is working)
 # sim.Projection(
