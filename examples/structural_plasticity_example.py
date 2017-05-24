@@ -29,6 +29,8 @@ Authors : Catherine Wacongne < catherine.waco@gmail.com >
 
 April 2013
 """
+
+
 import numpy as np
 import pylab
 
@@ -50,7 +52,7 @@ sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
 
 # Population parameters
 model = sim.IF_curr_exp
-sim.set_number_of_neurons_per_core("IF_curr_exp", 20)
+sim.set_number_of_neurons_per_core("IF_curr_exp", 10)
 cell_params = {'cm': 0.25,
                'i_offset': 0.0,
                'tau_m': 20.0,
@@ -169,12 +171,12 @@ stdp_model = sim.STDPMechanism(
                                                    A_plus=0.02, A_minus=0.02)
 )
 
-structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0.02, s_max=32)
+structure_model_w_stdp = sim.StructuralMechanism(stdp_model=stdp_model, weight=0.0, s_max=32)
 # structure_model_w_stdp = sim.StructuralMechanism(weight=.05)
 
 plastic_projection = sim.Projection(
     # pre_pop, post_pop, sim.FixedNumberPreConnector(32),
-    pre_pop, post_pop, sim.OneToOneConnector(0),  # TODO what about starting from 0?
+    pre_pop, post_pop, sim.FixedNumberPostConnector(20),  # TODO what about starting from 0?
     synapse_dynamics=sim.SynapseDynamics(slow=structure_model_w_stdp),
     label="plastic_projection"
 )
