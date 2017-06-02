@@ -52,7 +52,7 @@ sim.setup(timestep=1.0, min_delay=1.0, max_delay=10.0)
 
 # Population parameters
 model = sim.IF_curr_exp
-sim.set_number_of_neurons_per_core("IF_curr_exp", 10)
+sim.set_number_of_neurons_per_core("IF_curr_exp", 50)
 cell_params = {'cm': 0.25,
                'i_offset': 0.0,
                'tau_m': 20.0,
@@ -72,7 +72,7 @@ n_stim_test = 5
 n_stim_pairing = 20
 dur_stim = 20
 
-pop_size = 40
+pop_size = 256
 
 ISI = 90.
 start_test_pre_pairing = 200.
